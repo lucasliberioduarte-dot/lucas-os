@@ -271,6 +271,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--t1);font-size:13px
     <button class="sbi" onclick="sw('agenda',this)"><span class="sbi-ic">◷</span><span class="sbi-lb">Agenda</span></button>
     <button class="sbi" onclick="sw('tarefas',this)"><span class="sbi-ic">✓</span><span class="sbi-lb">Tarefas</span></button>
     <button class="sbi" onclick="sw('fin',this)"><span class="sbi-ic">◈</span><span class="sbi-lb">Financeiro</span></button>
+    <button class="sbi" onclick="sw('vendas',this)"><span class="sbi-ic">▣</span><span class="sbi-lb">Vendas</span></button>
   </nav>
   <div class="sb-foot">
     <button class="sbi" onclick="toggleTheme()" id="theme-btn"><span class="sbi-ic" id="theme-ic">🌙</span><span class="sbi-lb" id="theme-lb">Tema preto</span></button>
@@ -310,6 +311,8 @@ body{font-family:var(--sans);background:var(--bg);color:var(--t1);font-size:13px
   </div>
 
   <div class="view" id="view-fin"><div class="finwrap" id="finwrap"></div></div>
+
+  <div class="view" id="view-vendas"><div class="finwrap" id="vendaswrap"></div></div>
 </div>
 
 <!-- MODAIS -->
@@ -325,7 +328,11 @@ body{font-family:var(--sans);background:var(--bg);color:var(--t1);font-size:13px
     <div class="fl"><label>Cor</label><select class="fi" id="ev-cor"><option value="bl">Azul</option><option value="gr">Verde</option><option value="am">Amarelo</option><option value="re">Vermelho</option><option value="pu">Roxo</option></select></div>
   </div>
   <div class="fl"><label>Notas</label><input class="fi" id="ev-nota" placeholder="Observações..."></div>
-  <div class="ma"><button class="btn btnd" id="ev-del-btn" style="margin-right:auto;display:none" onclick="delEvEdit()">Excluir</button><button class="btn" onclick="cmo('mo-ev')">Cancelar</button><button class="btn btnp" onclick="saveEv()">Salvar</button></div>
+  <div class="frow">
+    <div class="fl"><label>Repetir</label><select class="fi" id="ev-rep"><option value="">Não repetir</option><option value="diaria">Diariamente</option><option value="semanal">Semanalmente</option></select></div>
+    <div class="fl"><label>Repetir até</label><input type="date" class="fi" id="ev-rep-until"></div>
+  </div>
+  <div class="ma"><button class="btn" id="ev-dup-btn" style="margin-right:auto;display:none" onclick="duplicateEvEdit()">Duplicar +1 dia</button><button class="btn btnd" id="ev-del-btn" style="display:none" onclick="delEvEdit()">Excluir</button><button class="btn" onclick="cmo('mo-ev')">Cancelar</button><button class="btn btnp" onclick="saveEv()">Salvar</button></div>
 </div></div>
 
 <div class="mo" id="mo-tk" onclick="if(event.target===this)cmo('mo-tk')"><div class="mbox">
@@ -344,7 +351,8 @@ body{font-family:var(--sans);background:var(--bg);color:var(--t1);font-size:13px
     <div class="fl"><label>Delegado para</label><input class="fi" id="tk-delegado" placeholder="Nome da pessoa..."></div>
     <div class="fl"><label>Repetir</label><select class="fi" id="tk-rep"><option value="">Não repetir</option><option value="diaria">Diariamente</option><option value="semanal">Semanalmente</option></select></div>
   </div>
-  <div class="ma"><button class="btn btnd" id="tk-del" style="margin-right:auto;display:none" onclick="delTask()">Excluir</button><button class="btn" onclick="cmo('mo-tk')">Cancelar</button><button class="btn btnp" onclick="saveTask()">Salvar</button></div>
+  <div class="fl"><label>Repetir até</label><input type="date" class="fi" id="tk-rep-until"></div>
+  <div class="ma"><button class="btn" id="tk-repl-btn" style="margin-right:auto;display:none" onclick="replicateTaskFromEdit()">Replicar</button><button class="btn btnd" id="tk-del" style="display:none" onclick="delTask()">Excluir</button><button class="btn" onclick="cmo('mo-tk')">Cancelar</button><button class="btn btnp" onclick="saveTask()">Salvar</button></div>
 </div></div>
 
 <div class="mo" id="mo-fin" onclick="if(event.target===this)cmo('mo-fin')"><div class="mbox">
@@ -360,6 +368,40 @@ body{font-family:var(--sans);background:var(--bg);color:var(--t1);font-size:13px
   </div>
   <div class="fl"><label>NF / Referência</label><input class="fi" id="fin-nf" placeholder="Número NF, link ou referência..."></div>
   <div class="ma"><button class="btn btnd" id="fin-del-btn" style="margin-right:auto;display:none" onclick="delFinEdit()">Excluir</button><button class="btn" onclick="cmo('mo-fin')">Cancelar</button><button class="btn btnp" onclick="saveFinEntry()">Salvar</button></div>
+</div></div>
+
+
+<div class="mo" id="mo-venda" onclick="if(event.target===this)cmo('mo-venda')"><div class="mbox">
+  <h3 id="mo-venda-t">Nova apuração de vendas</h3>
+  <div class="frow">
+    <div class="fl"><label>Empresa</label><input class="fi" id="vd-empresa" list="lista-empresas" placeholder="Ex.: DL Importadora"></div>
+    <div class="fl"><label>Loja / Canal</label><input class="fi" id="vd-loja" list="lista-lojas" placeholder="Ex.: Mercado Livre DL"></div>
+  </div>
+  <datalist id="lista-empresas">
+    <option value="DL Importadora"></option>
+    <option value="Mineirinho Importadora"></option>
+    <option value="Agência Shopee MG"></option>
+  </datalist>
+  <datalist id="lista-lojas">
+    <option value="Mercado Livre DL"></option>
+    <option value="Mercado Livre Mineirinho"></option>
+    <option value="Shopee DL"></option>
+    <option value="Shopee Mineirinho"></option>
+    <option value="TikTok"></option>
+    <option value="Site"></option>
+    <option value="Outros"></option>
+  </datalist>
+  <div class="frow3">
+    <div class="fl"><label>Data</label><input type="date" class="fi" id="vd-data"></div>
+    <div class="fl"><label>Qtd vendida</label><input type="number" class="fi" id="vd-qtd" min="0" step="1"></div>
+    <div class="fl"><label>Pedidos</label><input type="number" class="fi" id="vd-pedidos" min="0" step="1"></div>
+  </div>
+  <div class="frow">
+    <div class="fl"><label>Faturamento bruto R$</label><input type="number" class="fi" id="vd-bruto" step="0.01"></div>
+    <div class="fl"><label>Valor líquido R$</label><input type="number" class="fi" id="vd-liquido" step="0.01"></div>
+  </div>
+  <div class="fl"><label>Observação</label><input class="fi" id="vd-obs" placeholder="Observações..."></div>
+  <div class="ma"><button class="btn btnd" id="vd-del-btn" style="margin-right:auto;display:none" onclick="delVendaEdit()">Excluir</button><button class="btn" onclick="cmo('mo-venda')">Cancelar</button><button class="btn btnp" onclick="saveVenda()">Salvar</button></div>
 </div></div>
 
 <script type="module">
@@ -383,10 +425,12 @@ const DOCID = 'main';
 const REF = doc(db, 'lucas-os', DOCID);
 
 // ── STATE ──
-let tasks=[], events=[], pags=[], recs=[], hideSaldo=false, themeMode='light';
+let tasks=[], events=[], pags=[], recs=[], vendas=[], hideSaldo=false, themeMode='light';
 let streakData={days:[],last:""};
 let _loaded = false;
 let tkDayFilter='';
+let vendaEmpresaFilter='';
+let vendaLojaFilter='';
 
 async function loadFromFirestore() {
   try {
@@ -397,6 +441,7 @@ async function loadFromFirestore() {
       events = d.events || [];
       pags = d.pags || [];
       recs = d.recs || [];
+      vendas = d.vendas || [];
       streakData = d.streakData || {days:[],last:""};
       hideSaldo = d.hideSaldo || false;
       themeMode = d.themeMode || localStorage.getItem('lo5_theme') || 'light';
@@ -406,6 +451,7 @@ async function loadFromFirestore() {
       events = JSON.parse(localStorage.getItem('lo5_events')||'[]');
       pags = JSON.parse(localStorage.getItem('lo5_pag')||'[]');
       recs = JSON.parse(localStorage.getItem('lo5_rec')||'[]');
+      vendas = JSON.parse(localStorage.getItem('lo5_vendas')||'[]');
       streakData = JSON.parse(localStorage.getItem('lo5_streak')||'{"days":[],"last":""}');
       hideSaldo = localStorage.getItem('lo5_hs')==='1';
       themeMode = localStorage.getItem('lo5_theme') || 'light';
@@ -417,6 +463,7 @@ async function loadFromFirestore() {
     events = JSON.parse(localStorage.getItem('lo5_events')||'[]');
     pags = JSON.parse(localStorage.getItem('lo5_pag')||'[]');
     recs = JSON.parse(localStorage.getItem('lo5_rec')||'[]');
+    vendas = JSON.parse(localStorage.getItem('lo5_vendas')||'[]');
     streakData = JSON.parse(localStorage.getItem('lo5_streak')||'{"days":[],"last":""}');
     hideSaldo = localStorage.getItem('lo5_hs')==='1';
     themeMode = localStorage.getItem('lo5_theme') || 'light';
@@ -434,12 +481,13 @@ async function save(){
   localStorage.setItem('lo5_events',JSON.stringify(events));
   localStorage.setItem('lo5_pag',JSON.stringify(pags));
   localStorage.setItem('lo5_rec',JSON.stringify(recs));
+  localStorage.setItem('lo5_vendas',JSON.stringify(vendas));
   localStorage.setItem('lo5_streak',JSON.stringify(streakData));
   localStorage.setItem('lo5_hs', hideSaldo?'1':'0');
   localStorage.setItem('lo5_theme', themeMode);
   // Salva no Firestore
   try {
-    await setDoc(REF, {tasks, events, pags, recs, streakData, hideSaldo, themeMode, updatedAt: new Date().toISOString()});
+    await setDoc(REF, {tasks, events, pags, recs, vendas, streakData, hideSaldo, themeMode, updatedAt: new Date().toISOString()});
   } catch(e) {
     console.warn('Erro ao salvar no Firestore:', e);
   }
@@ -449,7 +497,7 @@ const MF=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto'
 const MS=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
 const DP=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const SLOT_H=38;
-const TITLES={dash:'Dashboard',agenda:'Agenda',tarefas:'Tarefas',fin:'Financeiro'};
+const TITLES={dash:'Dashboard',agenda:'Agenda',tarefas:'Tarefas',fin:'Financeiro',vendas:'Vendas'};
 const COR={bl:{bg:'rgba(37,99,235,.1)',bd:'#2563eb',tx:'#1d4ed8'},gr:{bg:'rgba(26,158,98,.1)',bd:'#1a9e62',tx:'#15794b'},am:{bg:'rgba(184,115,0,.1)',bd:'#b87300',tx:'#9a6100'},re:{bg:'rgba(208,48,48,.1)',bd:'#d03030',tx:'#b52828'},pu:{bg:'rgba(109,79,194,.1)',bd:'#6d4fc2',tx:'#5a3ea8'}};
 const CAT_COLORS={fornecedor:'var(--gr)',marketplace:'var(--pu)',importacao:'var(--or)',pessoal:'var(--bl)',escritorio:'var(--am)',faculdade:'var(--re)',outro:'var(--t2)'};
 const CAT_BG={fornecedor:'var(--gbg)',marketplace:'var(--pubg)',importacao:'var(--orbg)',pessoal:'var(--bbg)',escritorio:'var(--abg)',faculdade:'var(--rbg)',outro:'var(--bg3)'};
@@ -472,6 +520,8 @@ function toDS(d){return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'
 function nowDS(){return toDS(new Date())}
 function nowHM(){const n=new Date();return`${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`}
 function timeToMin(t){const[h,m]=(t||'0:0').split(':').map(Number);return h*60+m}
+function addDaysDS(ds,n){const d=new Date(ds+'T00:00:00');d.setDate(d.getDate()+n);return toDS(d)}
+function nextRepeatDate(ds,rep){if(!ds)return nowDS();const inc=rep==='semanal'?7:1;return addDaysDS(ds,inc)}
 function cmo(id){document.getElementById(id).classList.remove('on')}
 function omo(id){document.getElementById(id).classList.add('on')}
 function sw(v,btn){
@@ -481,7 +531,7 @@ function sw(v,btn){
   if(btn)btn.classList.add('on');
   else document.querySelector(`.sbi[onclick*="'${v}'"]`)?.classList.add('on');
   document.getElementById('topbar-t').textContent=TITLES[v];
-  if(v==='agenda')renderAg();if(v==='fin')renderFin();if(v==='tarefas')renderTasks();if(v==='dash')renderDash();
+  if(v==='agenda')renderAg();if(v==='fin')renderFin();if(v==='tarefas')renderTasks();if(v==='dash')renderDash();if(v==='vendas')renderVendas();
 }
 
 // topbar date
@@ -715,13 +765,13 @@ function renderAg(){
         const el=document.createElement('div');el.className=`sev${missed?' missed-ev':''}${ev.confirmed?' confirmed-ev':''}`;
         if(!missed)el.style.cssText=`top:${si*SLOT_H+2}px;height:${Math.max(ds2*SLOT_H-4,SLOT_H-4)}px;background:${c.bg};border-left-color:${c.bd};color:${c.tx}`;
         else el.style.cssText=`top:${si*SLOT_H+2}px;height:${Math.max(ds2*SLOT_H-4,SLOT_H-4)}px`;
-        el.innerHTML=`<div class="sev-t">${ev.titulo}${missed?' ⚠':ev.confirmed?' ✓':''}</div><div class="sev-s">${ev.hora} · ${ev.dur}h</div><span class="dx" onclick="clickDelEv('${ev.id}',event)">✕</span>`;
+        el.innerHTML=`<div class="sev-t">${ev.titulo}${missed?' ⚠':ev.confirmed?' ✓':''}</div><div class="sev-s">${ev.hora} · ${ev.dur}h</div><span class="dx" style="right:24px" onclick="duplicateEv('${ev.id}',event)">⧉</span><span class="dx" onclick="clickDelEv('${ev.id}',event)">✕</span>`;
         el.onclick=(e)=>{if(!e.target.classList.contains('dx'))openEvEdit(ev.id)};
         el.draggable=true;el.ondragstart=(e)=>{e.dataTransfer.setData('evId',ev.id);e.stopPropagation()};
         cb.appendChild(el);
       });
       cb.ondragover=e=>e.preventDefault();
-      cb.ondrop=e=>{e.preventDefault();const evId=e.dataTransfer.getData('evId');if(!evId)return;const rect=cb.getBoundingClientRect();const ry=e.clientY-rect.top;const idx=Math.max(0,Math.floor(ry/SLOT_H));const hh=7+Math.floor(idx/2);const mm=idx%2===0?'00':'30';const ev=events.find(x=>x.id===evId);if(ev){ev.data=ds;ev.hora=`${String(hh).padStart(2,'0')}:${mm}`;save();renderAg()}};
+      cb.ondrop=e=>{e.preventDefault();const evId=e.dataTransfer.getData('evId');if(!evId)return;const rect=cb.getBoundingClientRect();const ry=e.clientY-rect.top;const idx=Math.max(0,Math.floor(ry/SLOT_H));const hh=7+Math.floor(idx/2);const mm=idx%2===0?'00':'30';const novoHora=`${String(hh).padStart(2,'0')}:${mm}`;const ev=events.find(x=>x.id===evId);if(ev){if(e.altKey){events.push({...ev,id:Date.now().toString()+Math.random(),data:ds,hora:novoHora,confirmed:false});}else{ev.data=ds;ev.hora=novoHora;}save();renderAg()}};
       col.appendChild(cb);dw.appendChild(col);
     });
     let sy=false;const cols=Array.from(dw.querySelectorAll('.agcol'));
@@ -745,11 +795,13 @@ function renderAg(){
     wrap.appendChild(grid);body.appendChild(wrap);
   }
 }
-function openEvMo(d,h){editEvId=null;document.getElementById('mo-ev-t').textContent='Novo evento';document.getElementById('ev-d').value=d;document.getElementById('ev-h').value=h;document.getElementById('ev-t').value='';document.getElementById('ev-dur').value='1';document.getElementById('ev-cor').value='bl';document.getElementById('ev-nota').value='';document.getElementById('ev-del-btn').style.display='none';omo('mo-ev');setTimeout(()=>document.getElementById('ev-t').focus(),50)}
-function openEvEdit(id){const ev=events.find(x=>x.id===id);if(!ev)return;editEvId=id;document.getElementById('mo-ev-t').textContent='Editar evento';document.getElementById('ev-d').value=ev.data;document.getElementById('ev-h').value=ev.hora;document.getElementById('ev-t').value=ev.titulo;document.getElementById('ev-dur').value=String(ev.dur||1);document.getElementById('ev-cor').value=ev.cor||'bl';document.getElementById('ev-nota').value=ev.nota||'';document.getElementById('ev-del-btn').style.display='block';omo('mo-ev');setTimeout(()=>document.getElementById('ev-t').focus(),50)}
-function saveEv(){const t=document.getElementById('ev-t').value.trim();if(!t)return;if(editEvId){const ev=events.find(x=>x.id===editEvId);ev.titulo=t;ev.data=document.getElementById('ev-d').value;ev.hora=document.getElementById('ev-h').value;ev.dur=parseFloat(document.getElementById('ev-dur').value);ev.cor=document.getElementById('ev-cor').value;ev.nota=document.getElementById('ev-nota').value}else{events.push({id:Date.now().toString(),titulo:t,data:document.getElementById('ev-d').value,hora:document.getElementById('ev-h').value,dur:parseFloat(document.getElementById('ev-dur').value),cor:document.getElementById('ev-cor').value,nota:document.getElementById('ev-nota').value,confirmed:false})}save();cmo('mo-ev');renderAg();if(document.getElementById('view-dash').classList.contains('on'))renderDash()}
+function openEvMo(d,h){editEvId=null;document.getElementById('mo-ev-t').textContent='Novo evento';document.getElementById('ev-d').value=d;document.getElementById('ev-h').value=h;document.getElementById('ev-t').value='';document.getElementById('ev-dur').value='1';document.getElementById('ev-cor').value='bl';document.getElementById('ev-nota').value='';document.getElementById('ev-rep').value='';document.getElementById('ev-rep-until').value='';document.getElementById('ev-del-btn').style.display='none';document.getElementById('ev-dup-btn').style.display='none';omo('mo-ev');setTimeout(()=>document.getElementById('ev-t').focus(),50)}
+function openEvEdit(id){const ev=events.find(x=>x.id===id);if(!ev)return;editEvId=id;document.getElementById('mo-ev-t').textContent='Editar evento';document.getElementById('ev-d').value=ev.data;document.getElementById('ev-h').value=ev.hora;document.getElementById('ev-t').value=ev.titulo;document.getElementById('ev-dur').value=String(ev.dur||1);document.getElementById('ev-cor').value=ev.cor||'bl';document.getElementById('ev-nota').value=ev.nota||'';document.getElementById('ev-rep').value=ev.rep||'';document.getElementById('ev-rep-until').value=ev.repUntil||'';document.getElementById('ev-del-btn').style.display='block';document.getElementById('ev-dup-btn').style.display='block';omo('mo-ev');setTimeout(()=>document.getElementById('ev-t').focus(),50)}
+function saveEv(){const t=document.getElementById('ev-t').value.trim();if(!t)return;const rep=document.getElementById('ev-rep').value;const repUntil=document.getElementById('ev-rep-until').value;if(editEvId){const ev=events.find(x=>x.id===editEvId);ev.titulo=t;ev.data=document.getElementById('ev-d').value;ev.hora=document.getElementById('ev-h').value;ev.dur=parseFloat(document.getElementById('ev-dur').value);ev.cor=document.getElementById('ev-cor').value;ev.nota=document.getElementById('ev-nota').value;ev.rep=rep;ev.repUntil=repUntil}else{const base={id:Date.now().toString(),titulo:t,data:document.getElementById('ev-d').value,hora:document.getElementById('ev-h').value,dur:parseFloat(document.getElementById('ev-dur').value),cor:document.getElementById('ev-cor').value,nota:document.getElementById('ev-nota').value,rep:rep,repUntil:repUntil,confirmed:false};events.push(base);if(rep&&repUntil&&repUntil>base.data){let next=nextRepeatDate(base.data,rep);while(next<=repUntil){events.push({...base,id:Date.now().toString()+Math.random(),data:next,confirmed:false});next=nextRepeatDate(next,rep)}}}save();cmo('mo-ev');renderAg();if(document.getElementById('view-dash').classList.contains('on'))renderDash()}
 function clickDelEv(id,e){e.stopPropagation();events=events.filter(x=>x.id!==id);save();renderAg()}
 function delEvEdit(){events=events.filter(x=>x.id!==editEvId);save();cmo('mo-ev');renderAg()}
+function duplicateEv(id,e){if(e)e.stopPropagation();const ev=events.find(x=>x.id===id);if(!ev)return;const novaData=addDaysDS(ev.data,1);if(ev.repUntil&&novaData>ev.repUntil){alert('A repetição está programada só até '+fd(ev.repUntil));return;}events.push({...ev,id:Date.now().toString()+Math.random(),data:novaData,confirmed:false});save();renderAg();if(document.getElementById('view-dash').classList.contains('on'))renderDash()}
+function duplicateEvEdit(){if(!editEvId)return;duplicateEv(editEvId);cmo('mo-ev')}
 
 // ── TAREFAS ──
 const COLS=[{id:'pendente',lbl:'A fazer'},{id:'andamento',lbl:'Em andamento'},{id:'concluido',lbl:'Concluído'},{id:'cancelado',lbl:'Cancelado'}];
@@ -830,7 +882,7 @@ function renderTasks(){
       const dt=t.data?`<span class="tk-date">${fd(t.data)}${t.hora?' '+t.hora:''}</span>`:'';
       const dlg=t.delegado?`<span class="tk-dlg">→ ${t.delegado}</span>`:'';
       const rep=t.rep?`<span class="tk-rep">🔁 ${t.rep}</span>`:'';
-      card.innerHTML=`<div class="tktitle">${t.titulo}</div><div class="tkmeta"><span class="tktag ${tc}">${t.prioridade}</span><span class="tag ${catCls}">${t.cat||'outro'}</span>${dt}${dlg}${rep}</div><div class="tkact"><button class="tkbtn" onclick="verTask('${t.id}',event)">Ver</button><button class="tkbtn dlg" onclick="delegarTask('${t.id}',event)">Delegar</button><button class="tkbtn" onclick="editTask('${t.id}',event)">Editar</button><button class="tkbtn del" onclick="delTaskD('${t.id}',event)">✕</button></div>`;
+      card.innerHTML=`<div class="tktitle">${t.titulo}</div>${t.descricao?`<div class="tkdesc">${t.descricao}</div>`:""}<div class="tkmeta"><span class="tktag ${tc}">${t.prioridade}</span><span class="tag ${catCls}">${t.cat||'outro'}</span>${dt}${dlg}${rep}</div><div class="tkact"><button class="tkbtn" onclick="verTask('${t.id}',event)">Ver</button><button class="tkbtn" onclick="replicateTask('${t.id}',event)">Replicar</button><button class="tkbtn dlg" onclick="delegarTask('${t.id}',event)">Delegar</button><button class="tkbtn" onclick="editTask('${t.id}',event)">Editar</button><button class="tkbtn del" onclick="delTaskD('${t.id}',event)">✕</button></div>`;
       card.ondragstart=e=>{dragId=t.id;setTimeout(()=>card.classList.add('dr'),0)};
       card.ondragend=()=>{card.classList.remove('dr');document.querySelectorAll('.dzone').forEach(el=>el.classList.remove('over'))};
       list.appendChild(card);
@@ -845,14 +897,25 @@ function renderTasks(){
 }
 function processRepeatTasks(){
   const tod=nowDS();
-  tasks.filter(t=>t.rep&&t.status==='concluido'&&t.completedAt&&t.completedAt<tod).forEach(t=>{
-    // cria nova instância para hoje
-    const exists=tasks.find(x=>x.repParent===t.id&&x.data===tod);
-    if(!exists){
-      tasks.push({...t,id:Date.now().toString()+Math.random(),status:'pendente',completedAt:null,repParent:t.id,data:tod});
-      t.status='arquivado';
+  let changed=false;
+  const roots=tasks.filter(t=>t.rep);
+  roots.forEach(root=>{
+    const rootId=root.repRoot||root.id;
+    const family=tasks.filter(x=>(x.repRoot||x.id)===rootId);
+    let latest=family.sort((a,b)=>(a.data||'').localeCompare(b.data||''))[family.length-1]||root;
+    let nextDate=nextRepeatDate(latest.data||root.data||tod, root.rep);
+    const limit=root.repUntil||latest.repUntil||'';
+    while(nextDate<=tod && (!limit || nextDate<=limit)){
+      const exists=tasks.find(x=>(x.repRoot||x.id)===rootId && x.data===nextDate);
+      if(!exists){
+        tasks.push({...latest,id:Date.now().toString()+Math.random(),status:'pendente',completedAt:null,data:nextDate,repParent:latest.id,repRoot:rootId});
+        changed=true;
+      }
+      latest=tasks.filter(x=>(x.repRoot||x.id)===rootId).sort((a,b)=>(a.data||'').localeCompare(b.data||'' )).slice(-1)[0]||latest;
+      nextDate=nextRepeatDate(latest.data||nextDate, root.rep);
     }
   });
+  if(changed)save();
 }
 function verTask(id,e){
   e.stopPropagation();const t=tasks.find(x=>x.id===id);if(!t)return;
@@ -867,15 +930,17 @@ function verTask(id,e){
     ${t.data?`<div class="tp-lbl">Data / Hora</div><div class="tp-val">${fd(t.data)}${t.hora?' às '+t.hora:''}</div>`:''}
     ${t.delegado?`<div class="tp-lbl">Delegado para</div><div class="tp-val" style="color:var(--pu);font-weight:500">${t.delegado}</div>`:''}
     ${t.rep?`<div class="tp-lbl">Repetição</div><div class="tp-val" style="color:var(--bl)">🔁 ${t.rep}</div>`:''}
-    <div style="display:flex;gap:6px;margin-top:16px"><button class="btn" style="color:var(--pu);flex:1" onclick="delegarTask('${t.id}',event)">Delegar</button><button class="btn btnp" style="flex:1" onclick="editTask('${t.id}',event)">Editar</button></div>`;
+    <div style="display:flex;gap:6px;margin-top:16px"><button class="btn" style="flex:1" onclick="replicateTask('${t.id}',event)">Replicar</button><button class="btn" style="color:var(--pu);flex:1" onclick="delegarTask('${t.id}',event)">Delegar</button><button class="btn btnp" style="flex:1" onclick="editTask('${t.id}',event)">Editar</button></div>`;
   panel.classList.add('on');
 }
 function delegarTask(id,e){e.stopPropagation();const t=tasks.find(x=>x.id===id);if(!t)return;const n=prompt('Delegar para quem?',t.delegado||'');if(n===null)return;t.delegado=n.trim();save();renderTasks()}
-function newTask(col){eTkId=null;document.getElementById('mo-tk-t').textContent='Nova tarefa';document.getElementById('tk-titulo').value='';document.getElementById('tk-desc').value='';document.getElementById('tk-prio').value='media';document.getElementById('tk-cat').value='trabalho';document.getElementById('tk-data').value='';document.getElementById('tk-hora').value='';document.getElementById('tk-delegado').value='';document.getElementById('tk-rep').value='';document.getElementById('tk-del').style.display='none';document.getElementById('tk-del').dataset.col=col;omo('mo-tk');setTimeout(()=>document.getElementById('tk-titulo').focus(),50)}
-function editTask(id,e){if(e)e.stopPropagation();eTkId=id;const t=tasks.find(x=>x.id===id);document.getElementById('mo-tk-t').textContent='Editar tarefa';document.getElementById('tk-titulo').value=t.titulo;document.getElementById('tk-desc').value=t.descricao||'';document.getElementById('tk-prio').value=t.prioridade;document.getElementById('tk-cat').value=t.cat||'trabalho';document.getElementById('tk-data').value=t.data||'';document.getElementById('tk-hora').value=t.hora||'';document.getElementById('tk-delegado').value=t.delegado||'';document.getElementById('tk-rep').value=t.rep||'';document.getElementById('tk-del').style.display='block';document.getElementById('tk-panel').classList.remove('on');omo('mo-tk');setTimeout(()=>document.getElementById('tk-titulo').focus(),50)}
-function saveTask(){const t=document.getElementById('tk-titulo').value.trim();if(!t)return;const db=document.getElementById('tk-del');if(eTkId){const tk=tasks.find(x=>x.id===eTkId);tk.titulo=t;tk.descricao=document.getElementById('tk-desc').value;tk.prioridade=document.getElementById('tk-prio').value;tk.cat=document.getElementById('tk-cat').value;tk.data=document.getElementById('tk-data').value;tk.hora=document.getElementById('tk-hora').value;tk.delegado=document.getElementById('tk-delegado').value;tk.rep=document.getElementById('tk-rep').value}else{tasks.push({id:Date.now().toString(),titulo:t,descricao:document.getElementById('tk-desc').value,prioridade:document.getElementById('tk-prio').value,cat:document.getElementById('tk-cat').value,data:document.getElementById('tk-data').value,hora:document.getElementById('tk-hora').value,delegado:document.getElementById('tk-delegado').value,rep:document.getElementById('tk-rep').value,status:db.dataset.col||'pendente',completedAt:null})}save();cmo('mo-tk');renderTasks();if(document.getElementById('view-dash').classList.contains('on'))renderDash()}
+function newTask(col){eTkId=null;document.getElementById('mo-tk-t').textContent='Nova tarefa';document.getElementById('tk-titulo').value='';document.getElementById('tk-desc').value='';document.getElementById('tk-prio').value='media';document.getElementById('tk-cat').value='trabalho';document.getElementById('tk-data').value='';document.getElementById('tk-hora').value='';document.getElementById('tk-delegado').value='';document.getElementById('tk-rep').value='';document.getElementById('tk-rep-until').value='';document.getElementById('tk-del').style.display='none';document.getElementById('tk-repl-btn').style.display='none';document.getElementById('tk-del').dataset.col=col;omo('mo-tk');setTimeout(()=>document.getElementById('tk-titulo').focus(),50)}
+function editTask(id,e){if(e)e.stopPropagation();eTkId=id;const t=tasks.find(x=>x.id===id);document.getElementById('mo-tk-t').textContent='Editar tarefa';document.getElementById('tk-titulo').value=t.titulo;document.getElementById('tk-desc').value=t.descricao||'';document.getElementById('tk-prio').value=t.prioridade;document.getElementById('tk-cat').value=t.cat||'trabalho';document.getElementById('tk-data').value=t.data||'';document.getElementById('tk-hora').value=t.hora||'';document.getElementById('tk-delegado').value=t.delegado||'';document.getElementById('tk-rep').value=t.rep||'';document.getElementById('tk-rep-until').value=t.repUntil||'';document.getElementById('tk-del').style.display='block';document.getElementById('tk-repl-btn').style.display='block';document.getElementById('tk-panel').classList.remove('on');omo('mo-tk');setTimeout(()=>document.getElementById('tk-titulo').focus(),50)}
+function saveTask(){const t=document.getElementById('tk-titulo').value.trim();if(!t)return;const db=document.getElementById('tk-del');const rep=document.getElementById('tk-rep').value;const repUntil=document.getElementById('tk-rep-until').value;if(eTkId){const tk=tasks.find(x=>x.id===eTkId);tk.titulo=t;tk.descricao=document.getElementById('tk-desc').value;tk.prioridade=document.getElementById('tk-prio').value;tk.cat=document.getElementById('tk-cat').value;tk.data=document.getElementById('tk-data').value;tk.hora=document.getElementById('tk-hora').value;tk.delegado=document.getElementById('tk-delegado').value;tk.rep=rep;tk.repUntil=repUntil}else{tasks.push({id:Date.now().toString(),titulo:t,descricao:document.getElementById('tk-desc').value,prioridade:document.getElementById('tk-prio').value,cat:document.getElementById('tk-cat').value,data:document.getElementById('tk-data').value,hora:document.getElementById('tk-hora').value,delegado:document.getElementById('tk-delegado').value,rep:rep,repUntil:repUntil,status:db.dataset.col||'pendente',completedAt:null})}save();cmo('mo-tk');renderTasks();if(document.getElementById('view-dash').classList.contains('on'))renderDash()}
 function delTask(){tasks=tasks.filter(t=>t.id!==eTkId);save();cmo('mo-tk');renderTasks()}
 function delTaskD(id,e){e.stopPropagation();tasks=tasks.filter(t=>t.id!==id);save();renderTasks()}
+function replicateTask(id,e){if(e)e.stopPropagation();const t=tasks.find(x=>x.id===id);if(!t)return;const baseDate=t.data||nowDS();const novaData=t.rep?nextRepeatDate(baseDate,t.rep):addDaysDS(baseDate,1);if(t.repUntil&&novaData>t.repUntil){alert('A repetição está programada só até '+fd(t.repUntil));return;}tasks.push({...t,id:Date.now().toString()+Math.random(),status:'pendente',completedAt:null,data:novaData,repParent:t.id,repRoot:t.repRoot||t.id});save();renderTasks();if(document.getElementById('view-dash').classList.contains('on'))renderDash()}
+function replicateTaskFromEdit(){if(!eTkId)return;replicateTask(eTkId);cmo('mo-tk')}
 
 // ── FINANCEIRO ──
 let fM=new Date().getMonth(),fY=new Date().getFullYear(),finTipo='pag',finTab='pagar',editFinId=null;
@@ -992,6 +1057,79 @@ function saveFinEntry(){
 function tgSt(tipo,id){const arr=tipo==='pag'?pags:recs;const e=arr.find(x=>x.id===id);if(!e)return;const c={pendente:'pago',pago:'vencido',vencido:'pendente'};e.status=c[e.status]||'pendente';save();renderFin();if(document.getElementById('view-dash').classList.contains('on'))renderDash()}
 function dFin(tipo,id){if(tipo==='pag')pags=pags.filter(x=>x.id!==id);else recs=recs.filter(x=>x.id!==id);save();renderFin();if(document.getElementById('view-dash').classList.contains('on'))renderDash()}
 
+// ── VENDAS / APURAÇÃO ──
+let vM=new Date().getMonth(),vY=new Date().getFullYear(),editVendaId=null;
+function renderVendas(){
+  const mk=`${vY}-${String(vM+1).padStart(2,'0')}`;
+  let arr=vendas.filter(v=>!v.data || v.data.startsWith(mk));
+  if(vendaEmpresaFilter) arr=arr.filter(v=>(v.empresa||'')===vendaEmpresaFilter);
+  if(vendaLojaFilter) arr=arr.filter(v=>(v.loja||'')===vendaLojaFilter);
+  const bruto=arr.reduce((s,v)=>s+(Number(v.bruto)||0),0);
+  const liquido=arr.reduce((s,v)=>s+(Number(v.liquido)||0),0);
+  const qtd=arr.reduce((s,v)=>s+(Number(v.qtd)||0),0);
+  const pedidos=arr.reduce((s,v)=>s+(Number(v.pedidos)||0),0);
+  const ticket=pedidos?bruto/pedidos:0;
+  const empresas=[...new Set(vendas.map(v=>v.empresa).filter(Boolean))].sort();
+  const lojas=[...new Set(vendas.map(v=>v.loja).filter(Boolean))].sort();
+  const porEmpresa={}; const porLoja={};
+  arr.forEach(v=>{porEmpresa[v.empresa||'Sem empresa']=(porEmpresa[v.empresa||'Sem empresa']||0)+(Number(v.bruto)||0); porLoja[v.loja||'Sem loja']=(porLoja[v.loja||'Sem loja']||0)+(Number(v.bruto)||0);});
+  const wrap=document.getElementById('vendaswrap');
+  wrap.innerHTML=`
+    <div class="finnav">
+      <button onclick="vN(-1)">&#8249;</button>
+      <span class="finlbl">${MF[vM]} ${vY}</span>
+      <button onclick="vN(1)">&#8250;</button>
+      <button class="btn" onclick="vT()">Mês atual</button>
+      <span style="flex:1"></span>
+      <button class="btn btnp" onclick="openVendaMo()">+ Lançar venda</button>
+    </div>
+    <div class="fin-cards-row">
+      <div class="mc"><div class="mc-lbl">Faturamento bruto</div><div class="mc-val b">${R(bruto)}</div></div>
+      <div class="mc"><div class="mc-lbl">Valor líquido</div><div class="mc-val g">${R(liquido)}</div></div>
+      <div class="mc"><div class="mc-lbl">Qtd vendida</div><div class="mc-val a">${qtd}</div></div>
+      <div class="mc"><div class="mc-lbl">Pedidos</div><div class="mc-val p">${pedidos}</div></div>
+      <div class="mc"><div class="mc-lbl">Ticket médio</div><div class="mc-val">${R(ticket)}</div></div>
+    </div>
+    <div class="finsec">
+      <div class="sh"><span class="st">Filtros de apuração</span></div>
+      <div style="padding:12px 14px;display:grid;grid-template-columns:1fr 1fr auto;gap:10px">
+        <select class="fi" onchange="setVendaEmpresaFilter(this.value)">
+          <option value="">Todas as empresas</option>
+          ${empresas.map(e=>`<option value="${e}" ${vendaEmpresaFilter===e?'selected':''}>${e}</option>`).join('')}
+        </select>
+        <select class="fi" onchange="setVendaLojaFilter(this.value)">
+          <option value="">Todas as lojas</option>
+          ${lojas.map(l=>`<option value="${l}" ${vendaLojaFilter===l?'selected':''}>${l}</option>`).join('')}
+        </select>
+        <button class="btn" onclick="clearVendaFilters()">Limpar</button>
+      </div>
+    </div>
+    <div class="dash-row">
+      <div class="dcard">
+        <div class="sh"><span class="st">Totais por empresa</span></div>
+        ${Object.keys(porEmpresa).length===0?'<div class="empty">Nenhuma venda no período</div>':`<div class="cat-chart">${Object.entries(porEmpresa).sort((a,b)=>b[1]-a[1]).map(([nome,val])=>`<div class="cat-bar-row"><span class="cat-bar-lbl" style="width:120px">${nome}</span><div class="cat-bar-bg"><div class="cat-bar-fill" style="width:${Math.round((val/Math.max(...Object.values(porEmpresa),1))*100)}%;background:var(--bl)"></div></div><span class="cat-bar-val">${R(val)}</span></div>`).join('')}</div>`}
+      </div>
+      <div class="dcard">
+        <div class="sh"><span class="st">Totais por loja</span></div>
+        ${Object.keys(porLoja).length===0?'<div class="empty">Nenhuma venda no período</div>':`<div class="cat-chart">${Object.entries(porLoja).sort((a,b)=>b[1]-a[1]).map(([nome,val])=>`<div class="cat-bar-row"><span class="cat-bar-lbl" style="width:120px">${nome}</span><div class="cat-bar-bg"><div class="cat-bar-fill" style="width:${Math.round((val/Math.max(...Object.values(porLoja),1))*100)}%;background:var(--gr)"></div></div><span class="cat-bar-val">${R(val)}</span></div>`).join('')}</div>`}
+      </div>
+    </div>
+    <div class="finsec">
+      <div class="sh"><span class="st">Lançamentos de vendas — ${arr.length} registro(s)</span></div>
+      ${arr.length===0?'<div class="empty">Nenhuma apuração lançada nesse período</div>':`<table class="ftable"><thead><tr><th>Data</th><th>Empresa</th><th>Loja</th><th>Qtd</th><th>Pedidos</th><th>Bruto</th><th>Líquido</th><th></th></tr></thead><tbody>${arr.sort((a,b)=>(b.data||'').localeCompare(a.data||'')).map(v=>`<tr><td style="font-family:var(--mono)">${fd(v.data)}</td><td style="font-weight:500">${v.empresa||'—'}</td><td>${v.loja||'—'}</td><td>${v.qtd||0}</td><td>${v.pedidos||0}</td><td style="color:var(--bl);font-family:var(--mono)">${R(v.bruto||0)}</td><td style="color:var(--gr);font-family:var(--mono)">${R(v.liquido||0)}</td><td style="display:flex;gap:4px"><button class="btn" style="padding:2px 7px;font-size:10px" onclick="editVenda('${v.id}')">✎</button><button class="btn btnd" style="padding:2px 7px;font-size:10px" onclick="delVenda('${v.id}')">✕</button></td></tr>${v.obs?`<tr><td></td><td colspan="6" style="font-size:11px;color:var(--t2)">Obs.: ${v.obs}</td><td></td></tr>`:''}`).join('')}</tbody></table>`}
+    </div>`;
+}
+function vN(d){vM+=d;if(vM>11){vM=0;vY++}if(vM<0){vM=11;vY--}renderVendas()}
+function vT(){vM=new Date().getMonth();vY=new Date().getFullYear();renderVendas()}
+function setVendaEmpresaFilter(v){vendaEmpresaFilter=v;renderVendas()}
+function setVendaLojaFilter(v){vendaLojaFilter=v;renderVendas()}
+function clearVendaFilters(){vendaEmpresaFilter='';vendaLojaFilter='';renderVendas()}
+function openVendaMo(){editVendaId=null;document.getElementById('mo-venda-t').textContent='Nova apuração de vendas';document.getElementById('vd-empresa').value='';document.getElementById('vd-loja').value='';document.getElementById('vd-data').value=nowDS();document.getElementById('vd-qtd').value='';document.getElementById('vd-pedidos').value='';document.getElementById('vd-bruto').value='';document.getElementById('vd-liquido').value='';document.getElementById('vd-obs').value='';document.getElementById('vd-del-btn').style.display='none';omo('mo-venda')}
+function editVenda(id){const v=vendas.find(x=>x.id===id);if(!v)return;editVendaId=id;document.getElementById('mo-venda-t').textContent='Editar apuração de vendas';document.getElementById('vd-empresa').value=v.empresa||'';document.getElementById('vd-loja').value=v.loja||'';document.getElementById('vd-data').value=v.data||'';document.getElementById('vd-qtd').value=v.qtd||'';document.getElementById('vd-pedidos').value=v.pedidos||'';document.getElementById('vd-bruto').value=v.bruto||'';document.getElementById('vd-liquido').value=v.liquido||'';document.getElementById('vd-obs').value=v.obs||'';document.getElementById('vd-del-btn').style.display='block';omo('mo-venda')}
+function saveVenda(){const empresa=document.getElementById('vd-empresa').value.trim();const loja=document.getElementById('vd-loja').value.trim();const data=document.getElementById('vd-data').value; if(!empresa||!loja||!data){alert('Preencha empresa, loja e data.');return;} const item={empresa,loja,data,qtd:Number(document.getElementById('vd-qtd').value||0),pedidos:Number(document.getElementById('vd-pedidos').value||0),bruto:Number(document.getElementById('vd-bruto').value||0),liquido:Number(document.getElementById('vd-liquido').value||0),obs:document.getElementById('vd-obs').value.trim()}; if(editVendaId){const v=vendas.find(x=>x.id===editVendaId);Object.assign(v,item);} else {vendas.push({id:Date.now().toString(),...item});} save(); cmo('mo-venda'); renderVendas();}
+function delVendaEdit(){vendas=vendas.filter(x=>x.id!==editVendaId);save();cmo('mo-venda');renderVendas()}
+function delVenda(id){vendas=vendas.filter(x=>x.id!==id);save();renderVendas()}
+
 // ── PDF EXPORT ──
 function exportPDF(){
   try{
@@ -1048,9 +1186,10 @@ function exportPDF(){
 // ── EXPOR FUNÇÕES PARA onclick NO HTML ──
 Object.assign(window, {
   sw, toggleSB, toggleSaldo, toggleTheme, exportPDF,
-  agNav, agToday, setAV, cmo, saveEv, delEvEdit,
-  saveTask, setTkCat, toggleRepeatFilter, setTaskDayFilter, clearTaskDayFilter, verTask, editTask, delTask, delTaskD, delegarTask,
-  setFinTab, fN, dN, fT, dT, oFinMo, saveFinEntry, editFinEntry, delFinEdit, tgSt, dFin, confirmEv, clickDelEv
+  agNav, agToday, setAV, cmo, saveEv, delEvEdit, duplicateEv, duplicateEvEdit,
+  saveTask, setTkCat, toggleRepeatFilter, setTaskDayFilter, clearTaskDayFilter, verTask, editTask, delTask, delTaskD, delegarTask, replicateTask, replicateTaskFromEdit,
+  setFinTab, fN, dN, fT, dT, oFinMo, saveFinEntry, editFinEntry, delFinEdit, tgSt, dFin, confirmEv, clickDelEv,
+  renderVendas, vN, vT, setVendaEmpresaFilter, setVendaLojaFilter, clearVendaFilters, openVendaMo, editVenda, saveVenda, delVendaEdit, delVenda
 });
 
 // ── INIT ──
