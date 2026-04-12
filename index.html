@@ -339,22 +339,81 @@ body{font-family:var(--sans);background:var(--bg);color:var(--t1);font-size:13px
   <div class="ma"><button class="btn btnd" id="fin-del-btn" style="margin-right:auto;display:none" onclick="delFinEdit()">Excluir</button><button class="btn" onclick="cmo('mo-fin')">Cancelar</button><button class="btn btnp" onclick="saveFinEntry()">Salvar</button></div>
 </div></div>
 
-<script>
+<script type="module">
+// ── FIREBASE SETUP ──
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCXAe4DnqU4dUk93L6CpDTxpXWJ8H3Tv5I",
+  authDomain: "lucas-os.firebaseapp.com",
+  projectId: "lucas-os",
+  storageBucket: "lucas-os.firebasestorage.app",
+  messagingSenderId: "130357280353",
+  appId: "1:130357280353:web:f4e4fe3a41e1d81bf93420",
+  measurementId: "G-DYCJ220ZV0"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const DOCID = 'main';
+const REF = doc(db, 'lucas-os', DOCID);
+
 // ── STATE ──
-let tasks=JSON.parse(localStorage.getItem('lo5_tasks')||'[]');
-let events=JSON.parse(localStorage.getItem('lo5_events')||'[]');
-let pags=JSON.parse(localStorage.getItem('lo5_pag')||'[]');
-let recs=JSON.parse(localStorage.getItem('lo5_rec')||'[]');
-let hideSaldo=localStorage.getItem('lo5_hs')==='1';
-let streakData=JSON.parse(localStorage.getItem('lo5_streak')||'{"days":[],"last":""}');
-function save(){
+let tasks=[], events=[], pags=[], recs=[], hideSaldo=false;
+let streakData={days:[],last:""};
+let _loaded = false;
+
+async function loadFromFirestore() {
+  try {
+    const snap = await getDoc(REF);
+    if (snap.exists()) {
+      const d = snap.data();
+      tasks = d.tasks || [];
+      events = d.events || [];
+      pags = d.pags || [];
+      recs = d.recs || [];
+      streakData = d.streakData || {days:[],last:""};
+      hideSaldo = d.hideSaldo || false;
+    } else {
+      // Migrar do localStorage se existir
+      tasks = JSON.parse(localStorage.getItem('lo5_tasks')||'[]');
+      events = JSON.parse(localStorage.getItem('lo5_events')||'[]');
+      pags = JSON.parse(localStorage.getItem('lo5_pag')||'[]');
+      recs = JSON.parse(localStorage.getItem('lo5_rec')||'[]');
+      streakData = JSON.parse(localStorage.getItem('lo5_streak')||'{"days":[],"last":""}');
+      hideSaldo = localStorage.getItem('lo5_hs')==='1';
+      await save();
+    }
+  } catch(e) {
+    console.warn('Firestore erro, usando localStorage:', e);
+    tasks = JSON.parse(localStorage.getItem('lo5_tasks')||'[]');
+    events = JSON.parse(localStorage.getItem('lo5_events')||'[]');
+    pags = JSON.parse(localStorage.getItem('lo5_pag')||'[]');
+    recs = JSON.parse(localStorage.getItem('lo5_rec')||'[]');
+    streakData = JSON.parse(localStorage.getItem('lo5_streak')||'{"days":[],"last":""}');
+    hideSaldo = localStorage.getItem('lo5_hs')==='1';
+  }
+  _loaded = true;
+  if(hideSaldo){document.getElementById('saldo-lb').textContent='Mostrar saldo';document.getElementById('saldo-ic').textContent='🙈';}
+  renderDash();
+}
+
+async function save(){
+  // Salva no localStorage como backup
   localStorage.setItem('lo5_tasks',JSON.stringify(tasks));
   localStorage.setItem('lo5_events',JSON.stringify(events));
   localStorage.setItem('lo5_pag',JSON.stringify(pags));
   localStorage.setItem('lo5_rec',JSON.stringify(recs));
   localStorage.setItem('lo5_streak',JSON.stringify(streakData));
+  localStorage.setItem('lo5_hs', hideSaldo?'1':'0');
+  // Salva no Firestore
+  try {
+    await setDoc(REF, {tasks, events, pags, recs, streakData, hideSaldo, updatedAt: new Date().toISOString()});
+  } catch(e) {
+    console.warn('Erro ao salvar no Firestore:', e);
+  }
 }
-
 // ── CONSTANTS ──
 const MF=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 const MS=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
@@ -405,7 +464,7 @@ function toggleSaldo(){
   const av=document.querySelector('.view.on')?.id?.replace('view-','');
   if(av==='dash')renderDash();if(av==='fin')renderFin();
 }
-if(hideSaldo){document.getElementById('saldo-lb').textContent='Mostrar saldo';document.getElementById('saldo-ic').textContent='🙈';}
+
 
 // ── STREAK ──
 function updateStreak(){
@@ -902,7 +961,8 @@ function exportPDF(){
 }
 
 // ── INIT ──
-renderDash();
+loadFromFirestore();
+
 </script>
 </body>
 </html>
