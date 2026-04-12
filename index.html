@@ -31,3 +31,35 @@ window.sw = function (tela, botao) {
   }
 };
 </script>
+<script>
+window.toggleSaldo = function () {
+  const btn = document.getElementById("saldo-btn");
+  const ic = document.getElementById("saldo-ic");
+  const lb = document.getElementById("saldo-lb");
+
+  const oculto = btn.classList.toggle("oculto");
+
+  // troca ícone e texto
+  if (oculto) {
+    ic.innerText = "🙈";
+    lb.innerText = "Mostrar saldo";
+
+    // esconde valores (classe que você usa no financeiro)
+    document.querySelectorAll(".mc-val").forEach(el => {
+      el.setAttribute("data-original", el.innerText);
+      el.innerText = "R$ •••••";
+    });
+
+  } else {
+    ic.innerText = "👁";
+    lb.innerText = "Ocultar saldo";
+
+    // volta valores
+    document.querySelectorAll(".mc-val").forEach(el => {
+      if (el.getAttribute("data-original")) {
+        el.innerText = el.getAttribute("data-original");
+      }
+    });
+  }
+};
+</script>
