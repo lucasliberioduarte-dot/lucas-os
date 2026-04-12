@@ -22,6 +22,12 @@
   --mono:'DM Mono',monospace;--sans:'DM Sans',sans-serif;
   --slot:38px;
 }
+body.theme-dark{
+  --bg:#0d0d0f;--bg1:#141417;--bg2:#1b1b20;--bg3:#24242b;--bg4:#34343d;
+  --b1:rgba(255,255,255,0.08);--b2:rgba(255,255,255,0.16);--b3:rgba(255,255,255,0.24);
+  --t1:#f3f3f5;--t2:#b5b5be;--t3:#7a7a84;
+  --gbg:rgba(26,158,98,.14);--rbg:rgba(208,48,48,.16);--bbg:rgba(37,99,235,.16);--abg:rgba(184,115,0,.16);--pubg:rgba(109,79,194,.16);--orbg:rgba(212,88,10,.16);
+}
 body{font-family:var(--sans);background:var(--bg);color:var(--t1);font-size:13px;height:100vh;display:flex;overflow:hidden}
 ::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px}
 
@@ -236,6 +242,21 @@ body{font-family:var(--sans);background:var(--bg);color:var(--t1);font-size:13px
 .ftable td{padding:8px 14px;font-size:12px;border-bottom:1px solid var(--b1)}
 .ftable tr:last-child td{border-bottom:none}.ftable tr:hover td{background:var(--bg2)}
 .fin-cat-badge{padding:2px 8px;border-radius:20px;font-size:10px;font-weight:500}
+
+.tk-headwrap{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;width:100%}
+.tk-filters{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tk-day-input{padding:4px 10px;border-radius:20px;border:1px solid var(--b1);background:var(--bg);color:var(--t2);font-size:11px;font-family:var(--sans)}
+.tk-day-input:focus{outline:none;border-color:var(--bl);color:var(--t1)}
+.tk-dash{padding:12px 14px;border-bottom:1px solid var(--b1);background:var(--bg1);display:grid;grid-template-columns:1.2fr .8fr;gap:12px}
+.tk-dash-card{background:var(--bg);border:1px solid var(--b1);border-radius:var(--rl);padding:12px}
+.tk-dash-title{font-size:10px;color:var(--t2);font-weight:500;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.tk-dash-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.tk-mini{background:var(--bg1);border:1px solid var(--b1);border-radius:var(--r);padding:10px;text-align:center}
+.tk-mini-n{font-family:var(--mono);font-size:18px}
+.tk-mini-l{font-size:10px;color:var(--t3);margin-top:3px}
+.tk-cat-list{display:flex;flex-direction:column;gap:8px}
+@media (max-width: 900px){.tk-dash{grid-template-columns:1fr}.mcards,.fin-cards-row{grid-template-columns:repeat(2,1fr)}.dash-row,.dash-row3{grid-template-columns:1fr}.prog-cols{grid-template-columns:repeat(2,1fr)}}
+
 </style>
 </head>
 <body>
@@ -252,6 +273,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--t1);font-size:13px
     <button class="sbi" onclick="sw('fin',this)"><span class="sbi-ic">◈</span><span class="sbi-lb">Financeiro</span></button>
   </nav>
   <div class="sb-foot">
+    <button class="sbi" onclick="toggleTheme()" id="theme-btn"><span class="sbi-ic" id="theme-ic">🌙</span><span class="sbi-lb" id="theme-lb">Tema preto</span></button>
     <button class="sbi" onclick="toggleSaldo()" id="saldo-btn"><span class="sbi-ic" id="saldo-ic">👁</span><span class="sbi-lb" id="saldo-lb">Ocultar saldo</span></button>
     <button class="sbi" onclick="exportPDF()"><span class="sbi-ic">⬇</span><span class="sbi-lb">Relatório PDF</span></button>
   </div>
@@ -280,6 +302,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--t1);font-size:13px
 
   <div class="view" id="view-tarefas">
     <div class="tk-header" id="tk-header"></div>
+    <div class="tk-dash" id="tk-dash"></div>
     <div style="display:flex;flex:1;overflow:hidden">
       <div class="tklayout" id="tklayout"></div>
       <div class="tk-panel" id="tk-panel"></div>
@@ -332,7 +355,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--t1);font-size:13px
     <div class="fl"><label>Vencimento</label><input type="date" class="fi" id="fin-venc"></div>
   </div>
   <div class="frow">
-    <div class="fl"><label>Categoria</label><select class="fi" id="fin-cat"><option value="fornecedor">Fornecedor</option><option value="marketplace">Marketplace</option><option value="importacao">Importação</option><option value="pessoal">Pessoal</option><option value="escritorio">Escritório</option><option value="faculdade">Faculdade</option><option value="outro">Outro</option></select></div>
+    <div class="fl"><label>Categoria</label><input class="fi" id="fin-cat" list="fin-cat-list" placeholder="Fornecedor, aluguel, imposto..."><datalist id="fin-cat-list"><option value="fornecedor"><option value="marketplace"><option value="importacao"><option value="pessoal"><option value="escritorio"><option value="faculdade"><option value="outro"></datalist></div>
     <div class="fl"><label>Status</label><select class="fi" id="fin-st"><option value="pendente">Pendente</option><option value="pago">Pago/Recebido</option><option value="vencido">Vencido</option></select></div>
   </div>
   <div class="fl"><label>NF / Referência</label><input class="fi" id="fin-nf" placeholder="Número NF, link ou referência..."></div>
@@ -360,9 +383,10 @@ const DOCID = 'main';
 const REF = doc(db, 'lucas-os', DOCID);
 
 // ── STATE ──
-let tasks=[], events=[], pags=[], recs=[], hideSaldo=false;
+let tasks=[], events=[], pags=[], recs=[], hideSaldo=false, themeMode='light';
 let streakData={days:[],last:""};
 let _loaded = false;
+let tkDayFilter='';
 
 async function loadFromFirestore() {
   try {
@@ -375,6 +399,7 @@ async function loadFromFirestore() {
       recs = d.recs || [];
       streakData = d.streakData || {days:[],last:""};
       hideSaldo = d.hideSaldo || false;
+      themeMode = d.themeMode || localStorage.getItem('lo5_theme') || 'light';
     } else {
       // Migrar do localStorage se existir
       tasks = JSON.parse(localStorage.getItem('lo5_tasks')||'[]');
@@ -383,6 +408,7 @@ async function loadFromFirestore() {
       recs = JSON.parse(localStorage.getItem('lo5_rec')||'[]');
       streakData = JSON.parse(localStorage.getItem('lo5_streak')||'{"days":[],"last":""}');
       hideSaldo = localStorage.getItem('lo5_hs')==='1';
+      themeMode = localStorage.getItem('lo5_theme') || 'light';
       await save();
     }
   } catch(e) {
@@ -393,9 +419,12 @@ async function loadFromFirestore() {
     recs = JSON.parse(localStorage.getItem('lo5_rec')||'[]');
     streakData = JSON.parse(localStorage.getItem('lo5_streak')||'{"days":[],"last":""}');
     hideSaldo = localStorage.getItem('lo5_hs')==='1';
+    themeMode = localStorage.getItem('lo5_theme') || 'light';
   }
   _loaded = true;
+  applyTheme();
   if(hideSaldo){document.getElementById('saldo-lb').textContent='Mostrar saldo';document.getElementById('saldo-ic').textContent='🙈';}
+  refreshFinCategoryOptions();
   renderDash();
 }
 
@@ -407,9 +436,10 @@ async function save(){
   localStorage.setItem('lo5_rec',JSON.stringify(recs));
   localStorage.setItem('lo5_streak',JSON.stringify(streakData));
   localStorage.setItem('lo5_hs', hideSaldo?'1':'0');
+  localStorage.setItem('lo5_theme', themeMode);
   // Salva no Firestore
   try {
-    await setDoc(REF, {tasks, events, pags, recs, streakData, hideSaldo, updatedAt: new Date().toISOString()});
+    await setDoc(REF, {tasks, events, pags, recs, streakData, hideSaldo, themeMode, updatedAt: new Date().toISOString()});
   } catch(e) {
     console.warn('Erro ao salvar no Firestore:', e);
   }
@@ -424,6 +454,15 @@ const COR={bl:{bg:'rgba(37,99,235,.1)',bd:'#2563eb',tx:'#1d4ed8'},gr:{bg:'rgba(2
 const CAT_COLORS={fornecedor:'var(--gr)',marketplace:'var(--pu)',importacao:'var(--or)',pessoal:'var(--bl)',escritorio:'var(--am)',faculdade:'var(--re)',outro:'var(--t2)'};
 const CAT_BG={fornecedor:'var(--gbg)',marketplace:'var(--pubg)',importacao:'var(--orbg)',pessoal:'var(--bbg)',escritorio:'var(--abg)',faculdade:'var(--rbg)',outro:'var(--bg3)'};
 const TK_CAT_CLASS={trabalho:'tag-trab',casa:'tag-casa',pessoal:'tag-pess',faculdade:'tag-facu',outro:'tag-outro'};
+
+function refreshFinCategoryOptions(){
+  const dl=document.getElementById('fin-cat-list');
+  if(!dl) return;
+  const base=['fornecedor','marketplace','importacao','pessoal','escritorio','faculdade','outro'];
+  const extra=[...new Set([...pags,...recs].map(e=>e.cat).filter(Boolean))];
+  const cats=[...new Set([...base,...extra])];
+  dl.innerHTML=cats.map(c=>`<option value="${c}"></option>`).join('');
+}
 
 // ── HELPERS ──
 function R(v){if(hideSaldo)return'R$ ••••';return'R$\u00a0'+(Number(v)||0).toFixed(2).replace('.',',')}
@@ -461,8 +500,20 @@ function toggleSaldo(){
   hideSaldo=!hideSaldo;localStorage.setItem('lo5_hs',hideSaldo?'1':'0');
   document.getElementById('saldo-lb').textContent=hideSaldo?'Mostrar saldo':'Ocultar saldo';
   document.getElementById('saldo-ic').textContent=hideSaldo?'🙈':'👁';
+  save();
   const av=document.querySelector('.view.on')?.id?.replace('view-','');
   if(av==='dash')renderDash();if(av==='fin')renderFin();
+}
+function applyTheme(){
+  document.body.classList.toggle('theme-dark', themeMode==='dark');
+  const ic=document.getElementById('theme-ic'), lb=document.getElementById('theme-lb');
+  if(ic) ic.textContent = themeMode==='dark' ? '☀️' : '🌙';
+  if(lb) lb.textContent = themeMode==='dark' ? 'Tema claro' : 'Tema preto';
+}
+function toggleTheme(){
+  themeMode = themeMode==='dark' ? 'light' : 'dark';
+  applyTheme();
+  save();
 }
 
 
@@ -676,7 +727,7 @@ function renderAg(){
     let sy=false;const cols=Array.from(dw.querySelectorAll('.agcol'));
     cols.forEach(c=>c.addEventListener('scroll',()=>{if(sy)return;sy=true;cols.forEach(x=>{if(x!==c)x.scrollTop=c.scrollTop});tc.scrollTop=c.scrollTop;sy=false}));
     wrap.appendChild(dw);body.appendChild(wrap);
-    setTimeout(()=>{const fc=dw.querySelector('.agcol');if(fc)fc.scrollTop=2*SLOT_H},60);
+    setTimeout(()=>{const fc=dw.querySelector('.agcol'); if(fc){ const [hh,mm]=nowH.split(':').map(Number); const idx=Math.max(0, ((hh-7)*2)+(mm>=30?1:0)-2); const target=idx*SLOT_H; fc.scrollTop=target; tc.scrollTop=target; cols.forEach(c=>c.scrollTop=target);} },60);
   } else {
     const yr=agMon.getFullYear(),mn=agMon.getMonth();lbl.textContent=`${MF[mn]} ${yr}`;
     const wrap=document.createElement('div');wrap.className='ag-month';
@@ -707,24 +758,57 @@ const TK_CATS=['','trabalho','casa','pessoal','faculdade','outro'];
 
 function renderTaskHeader(){
   const h=document.getElementById('tk-header');
-  h.innerHTML=`<span style="font-size:11px;font-weight:500;color:var(--t2);margin-right:4px">Filtrar:</span>
-    ${TK_CATS.map(c=>`<button class="tk-filter-btn${tkCatFilter===c&&!(c===''&&tkFilterRepeat)?c===''?' on':' on':''}" onclick="setTkCat('${c}')">${c===''?'Todas':c.charAt(0).toUpperCase()+c.slice(1)}</button>`).join('')}
-    <button class="tk-filter-btn${tkFilterRepeat?' on':''}" onclick="toggleRepeatFilter()" style="margin-left:4px">🔁 Repetidas</button>`;
-  // corrigir on
-  h.querySelectorAll('.tk-filter-btn').forEach((b,i)=>{b.classList.remove('on')});
-  if(tkFilterRepeat){h.querySelectorAll('.tk-filter-btn')[h.querySelectorAll('.tk-filter-btn').length-1].classList.add('on')}
-  else{const idx=TK_CATS.indexOf(tkCatFilter);if(idx>=0)h.querySelectorAll('.tk-filter-btn')[idx].classList.add('on')}
+  h.innerHTML=`<div class="tk-headwrap"><div class="tk-filters"><span style="font-size:11px;font-weight:500;color:var(--t2);margin-right:4px">Filtrar:</span>
+    ${TK_CATS.map(c=>`<button class="tk-filter-btn" onclick="setTkCat('${c}')">${c===''?'Todas':c.charAt(0).toUpperCase()+c.slice(1)}</button>`).join('')}
+    <button class="tk-filter-btn" onclick="toggleRepeatFilter()" style="margin-left:4px">🔁 Repetidas</button>
+    <input type="date" class="tk-day-input" id="tk-day-filter" value="${tkDayFilter}" onchange="setTaskDayFilter(this.value)">
+    <button class="tk-filter-btn" onclick="clearTaskDayFilter()">Limpar dia</button></div>
+    <div style="font-size:11px;color:var(--t3)">produção do mês e filtros rápidos</div></div>`;
+  const buttons=h.querySelectorAll('.tk-filter-btn');
+  buttons.forEach(b=>b.classList.remove('on'));
+  if(tkFilterRepeat) buttons[TK_CATS.length].classList.add('on');
+  else { const idx=TK_CATS.indexOf(tkCatFilter); if(idx>=0) buttons[idx].classList.add('on'); }
 }
 function setTkCat(c){tkCatFilter=c;tkFilterRepeat=false;renderTaskHeader();renderTasks()}
 function toggleRepeatFilter(){tkFilterRepeat=!tkFilterRepeat;if(tkFilterRepeat)tkCatFilter='';renderTaskHeader();renderTasks()}
+function setTaskDayFilter(v){tkDayFilter=v||'';renderTasks()}
+function clearTaskDayFilter(){tkDayFilter='';renderTaskHeader();renderTasks()}
+function renderTaskDash(){
+  const box=document.getElementById('tk-dash');
+  if(!box) return;
+  const now=new Date();
+  const mk=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const concluidasMes=tasks.filter(t=>t.status==='concluido' && (t.completedAt||t.data||'').startsWith(mk));
+  const total=concluidasMes.length;
+  const porCat={};
+  concluidasMes.forEach(t=>{const c=t.cat||'outro'; porCat[c]=(porCat[c]||0)+1;});
+  const catArr=Object.entries(porCat).sort((a,b)=>b[1]-a[1]);
+  const maxCat=catArr.length?catArr[0][1]:1;
+  const hoje=nowDS();
+  const hojeDone=tasks.filter(t=>t.status==='concluido' && t.completedAt===hoje).length;
+  const pendentes=tasks.filter(t=>t.status==='pendente').length;
+  const delegadas=tasks.filter(t=>t.delegado).length;
+  box.innerHTML=`<div class="tk-dash-card"><div class="tk-dash-title">Produção do mês</div>
+    <div class="tk-dash-stats">
+      <div class="tk-mini"><div class="tk-mini-n" style="color:var(--gr)">${total}</div><div class="tk-mini-l">Concluídas</div></div>
+      <div class="tk-mini"><div class="tk-mini-n" style="color:var(--bl)">${hojeDone}</div><div class="tk-mini-l">Feitas hoje</div></div>
+      <div class="tk-mini"><div class="tk-mini-n" style="color:var(--am)">${pendentes}</div><div class="tk-mini-l">Pendentes</div></div>
+      <div class="tk-mini"><div class="tk-mini-n" style="color:var(--pu)">${delegadas}</div><div class="tk-mini-l">Delegadas</div></div>
+    </div></div>
+    <div class="tk-dash-card"><div class="tk-dash-title">Concluídas por categoria</div>
+      ${catArr.length===0?'<div class="empty" style="padding:8px 0 0">Nenhuma tarefa concluída neste mês</div>':`<div class="tk-cat-list">${catArr.map(([cat,val])=>`<div class="cat-bar-row"><span class="cat-bar-lbl">${cat}</span><div class="cat-bar-bg"><div class="cat-bar-fill" style="width:${Math.round(val/maxCat*100)}%;background:${CAT_COLORS[cat]||'var(--t2)'}"></div></div><span class="cat-bar-val">${val} tarefa${val!==1?'s':''}</span></div>`).join('')}</div>`}
+    </div>`;
+}
 
 function renderTasks(){
   renderTaskHeader();
+  renderTaskDash();
   const layout=document.getElementById('tklayout');layout.innerHTML='';
   COLS.forEach(col=>{
     let ct=tasks.filter(t=>t.status===col.id);
     if(tkFilterRepeat)ct=ct.filter(t=>t.rep);
     else if(tkCatFilter)ct=ct.filter(t=>(t.cat||'outro')===tkCatFilter);
+    if(tkDayFilter) ct=ct.filter(t=>t.data===tkDayFilter || t.completedAt===tkDayFilter);
     const div=document.createElement('div');div.className='tkcol';
     const head=document.createElement('div');head.className='tkch';head.innerHTML=`<span class="tkct">${col.lbl}</span><span class="tkcn">${ct.length}</span>`;div.appendChild(head);
     const list=document.createElement('div');list.className='tklist';list.id='col-'+col.id;
@@ -796,6 +880,7 @@ function delTaskD(id,e){e.stopPropagation();tasks=tasks.filter(t=>t.id!==id);sav
 // ── FINANCEIRO ──
 let fM=new Date().getMonth(),fY=new Date().getFullYear(),finTipo='pag',finTab='pagar',editFinId=null;
 function renderFin(){
+  refreshFinCategoryOptions();
   const mk=`${fY}-${String(fM+1).padStart(2,'0')}`;
   const ap=pags.filter(e=>!e.venc||e.venc.startsWith(mk));
   const ar=recs.filter(e=>!e.venc||e.venc.startsWith(mk));
@@ -879,7 +964,7 @@ function renderFinTab(ap,ar,tP,tR,tPago,tRec,saldo,catArr,maxCat){
 }
 function fN(d){fM+=d;if(fM>11){fM=0;fY++}if(fM<0){fM=11;fY--}renderFin()}
 function fT(){fM=new Date().getMonth();fY=new Date().getFullYear();renderFin()}
-function oFinMo(tipo){finTipo=tipo;editFinId=null;document.getElementById('mo-fin-t').textContent=tipo==='pag'?'Nova conta a pagar':'Novo recebimento';document.getElementById('fin-desc').value='';document.getElementById('fin-val').value='';document.getElementById('fin-venc').value='';document.getElementById('fin-cat').value='fornecedor';document.getElementById('fin-st').value='pendente';document.getElementById('fin-nf').value='';document.getElementById('fin-del-btn').style.display='none';omo('mo-fin')}
+function oFinMo(tipo){refreshFinCategoryOptions();finTipo=tipo;editFinId=null;document.getElementById('mo-fin-t').textContent=tipo==='pag'?'Nova conta a pagar':'Novo recebimento';document.getElementById('fin-desc').value='';document.getElementById('fin-val').value='';document.getElementById('fin-venc').value='';document.getElementById('fin-cat').value='fornecedor';document.getElementById('fin-st').value='pendente';document.getElementById('fin-nf').value='';document.getElementById('fin-del-btn').style.display='none';omo('mo-fin')}
 function editFinEntry(tipo,id){
   finTipo=tipo;editFinId=id;
   const arr=tipo==='pag'?pags:recs;const e=arr.find(x=>x.id===id);if(!e)return;
@@ -960,41 +1045,12 @@ function exportPDF(){
   }catch(err){alert('Erro ao gerar PDF. Verifique se a biblioteca carregou.')}
 }
 
-
-
 // ── EXPOR FUNÇÕES PARA onclick NO HTML ──
 Object.assign(window, {
-  sw,
-  toggleSB,
-  toggleSaldo,
-  exportPDF,
-  agNav,
-  agToday,
-  setAV,
-  cmo,
-  saveEv,
-  delEvEdit,
-  saveTask,
-  setTkCat,
-  toggleRepeatFilter,
-  verTask,
-  editTask,
-  delTask,
-  delTaskD,
-  delegarTask,
-  setFinTab,
-  fN,
-  dN,
-  fT,
-  dT,
-  oFinMo,
-  saveFinEntry,
-  editFinEntry,
-  delFinEdit,
-  tgSt,
-  dFin,
-  confirmEv,
-  clickDelEv
+  sw, toggleSB, toggleSaldo, toggleTheme, exportPDF,
+  agNav, agToday, setAV, cmo, saveEv, delEvEdit,
+  saveTask, setTkCat, toggleRepeatFilter, setTaskDayFilter, clearTaskDayFilter, verTask, editTask, delTask, delTaskD, delegarTask,
+  setFinTab, fN, dN, fT, dT, oFinMo, saveFinEntry, editFinEntry, delFinEdit, tgSt, dFin, confirmEv, clickDelEv
 });
 
 // ── INIT ──
