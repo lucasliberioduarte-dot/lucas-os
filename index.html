@@ -233,6 +233,45 @@ body{font-family:var(--sans);background:var(--bg);color:var(--t1);font-size:13px
 .tk-cat-list{display:flex;flex-direction:column;gap:8px}
 @media(max-width:900px){.tk-dash{grid-template-columns:1fr}.mcards,.fin-cards-row{grid-template-columns:repeat(2,1fr)}.dash-row{grid-template-columns:1fr}.prog-cols{grid-template-columns:repeat(2,1fr)}}
 </style>
+
+<!-- Firebase SDK modular -->
+<script type="importmap">
+{
+  "imports": {
+    "firebase/app": "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js",
+    "firebase/firestore": "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"
+  }
+}
+</script>
+<script type="module">
+  import { initializeApp } from "firebase/app";
+  import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBEvifsFQPFWRQjCBaycyBy-DVJZzPClzk",
+    authDomain: "lucas-os.firebaseapp.com",
+    projectId: "lucas-os",
+    storageBucket: "lucas-os.firebasestorage.app",
+    messagingSenderId: "130357280353",
+    appId: "1:130357280353:web:f4e4fe3a41e1d81bf93420"
+  };
+
+  try {
+    const app = initializeApp(firebaseConfig);
+    const fsdb = getFirestore(app);
+    const docRef = doc(fsdb, "lucas-os", "main");
+
+    window._fsGet = () => getDoc(docRef);
+    window._fsSet = (data) => setDoc(docRef, data);
+    window._fsReady = true;
+    console.log("Firebase OK");
+  } catch(e) {
+    console.error("Firebase init erro:", e);
+    window._fsReady = false;
+  }
+
+  window.dispatchEvent(new Event("firebase-ready"));
+</script>
 </head>
 <body>
 
@@ -1167,11 +1206,20 @@ function exportPDF(){
 }
 
 // ── INIT ──
-// Usa ES Modules do Firebase (mais confiável que compat CDN)
-</script>
-<script>
-// ── INIT ──
-loadFromFirestore();
+// Aguarda Firebase antes de carregar; se não vier em 4s, usa localStorage
+window.addEventListener("firebase-ready", function() {
+  if (!window._appBooted) {
+    window._appBooted = true;
+    loadFromFirestore();
+  }
+});
+setTimeout(function() {
+  if (!window._appBooted) {
+    window._appBooted = true;
+    console.warn("Firebase demorou — carregando com localStorage");
+    loadFromFirestore();
+  }
+}, 4000);
 </script>
 </body>
 </html>
