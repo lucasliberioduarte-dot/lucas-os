@@ -703,7 +703,8 @@ function confirmEv(id){var ev=events.find(function(x){return x.id===id;});if(ev)
 
 // ── AGENDA ──
 var HOURS=[];
-for(var _h=7;_h<=22;_h++){HOURS.push({lb:String(_h).padStart(2,'0')+':00',t:String(_h).padStart(2,'0')+':00',half:false});if(_h<22)HOURS.push({lb:'',t:String(_h).padStart(2,'0')+':30',half:true});}
+// ✅ CORRETO:
+for(var h=7;h<=22;h++){HOURS.push({lb:String(h).padStart(2,'0')+':00',...,t:String(_h).padStart(2,'0')+':00',half:false});if(_h<22)HOURS.push({lb:'',t:String(_h).padStart(2,'0')+':30',half:true});}
 var TS=HOURS.length;
 
 function setAV(v){agV=v;document.getElementById('vts').classList.toggle('on',v==='s');document.getElementById('vtm').classList.toggle('on',v==='m');renderAg();}
