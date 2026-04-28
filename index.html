@@ -18,7 +18,7 @@
 
 <style>
 
-,::before,*::after{box-sizing:border-box;margin:0;padding:0}
+*,::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
 :root{
 
@@ -1030,7 +1030,7 @@ var TK_CAT_CLS={trabalho:'tag-trab',casa:'tag-casa',pessoal:'tag-pess',faculdade
 
 var HOURS=[];
 
-for(var h=7;h<=22;_h++){HOURS.push({lb:String(_h).padStart(2,'0')+':00',t:String(_h).padStart(2,'0')+':00',half:false});if(_h<22)HOURS.push({lb:'',t:String(_h).padStart(2,'0')+':30',half:true});}
+for(var h=7;h<=22;h++){HOURS.push({lb:String(_h).padStart(2,'0')+':00',t:String(_h).padStart(2,'0')+':00',half:false});if(_h<22)HOURS.push({lb:'',t:String(_h).padStart(2,'0')+':30',half:true});}
 
 // SYNC
 
@@ -1409,6 +1409,7 @@ function renderTasks(){
     else if(tkCatFilter)ct=ct.filter(function(t){return(t.cat||'outro')===tkCatFilter;});
 
     if(tkDayFilter)ct=ct.filter(function(t){return t.data===tkDayFilter||t.completedAt===tkDayFilter;});
+    if((col.id==='pendente'||col.id==='andamento')&&!tkDayFilter)ct=ct.filter(function(t){return !t.data||t.data<=nowDS();});
 
     var div=document.createElement('div');div.className='tkcol';
 
@@ -1462,7 +1463,7 @@ function processRepeat(){var tod=nowDS();var changed=false;tasks.filter(function
 
 function verTask(id,e){e.stopPropagation();var t=tasks.find(function(x){return x.id===id;});if(!t)return;var panel=document.getElementById('tk-panel');var tc={alta:'var(--re)',media:'var(--am)',baixa:'var(--gr)'}[t.prioridade];panel.innerHTML='<div class="tp-head"><span style="font-size:13px;font-weight:600;flex:1;padding-right:8px">'+t.titulo+'</span><button class="btn" onclick="document.getElementById(\'tk-panel\').classList.remove(\'on\')" style="padding:2px 8px;font-size:11px">✕</button></div><div class="tp-body"><div class="tp-lbl">Prioridade</div><div class="tp-val" style="color:'+tc+';font-weight:500">'+t.prioridade+'</div><div class="tp-lbl">Categoria</div><div class="tp-val">'+(t.cat||'outro')+'</div><div class="tp-lbl">Status</div><div class="tp-val">'+t.status+'</div>'+(t.data?'<div class="tp-lbl">Data</div><div class="tp-val" style="font-family:var(--mono)">'+fd(t.data)+(t.hora?' às '+t.hora:'')+'</div>':'')+(t.descricao?'<div class="tp-lbl">Descrição</div><div class="tp-val" style="color:var(--t2);font-size:12px">'+t.descricao+'</div>':'')+(t.delegado?'<div class="tp-lbl">Delegado para</div><div class="tp-val" style="color:var(--pu)">→ '+t.delegado+'</div>':'')+(t.rep?'<div class="tp-lbl">Repetição</div><div class="tp-val" style="color:var(--bl)">🔁 '+t.rep+'</div>':'')+'<div style="display:flex;gap:6px;margin-top:16px"><button class="btn" style="flex:1" onclick="editTask(\''+id+'\',null);document.getElementById(\'tk-panel\').classList.remove(\'on\')">Editar</button>'+(t.status!=='concluido'?'<button class="btn btng" style="flex:1" onclick="completarTask2(\''+id+'\');document.getElementById(\'tk-panel\').classList.remove(\'on\')">✓ Concluir</button>':'')+'</div></div>';panel.classList.add('on');}
 
-function newTask(col){eTkId=null;document.getElementById('mo-tk-t').textContent='Nova tarefa';document.getElementById('tk-titulo').value='';document.getElementById('tk-desc').value='';document.getElementById('tk-prio').value='media';document.getElementById('tk-cat').value='trabalho';document.getElementById('tk-data').value='';document.getElementById('tk-hora').value='';document.getElementById('tk-delegado').value='';document.getElementById('tk-rep').value='';document.getElementById('tk-rep-until').value='';document.getElementById('tk-del').style.display='none';document.getElementById('tk-del').dataset.col=col||'pendente';omo('mo-tk');setTimeout(function(){document.getElementById('tk-titulo').focus();},50);}
+function newTask(col){eTkId=null;document.getElementById('mo-tk-t').textContent='Nova tarefa';document.getElementById('tk-titulo').value='';document.getElementById('tk-desc').value='';document.getElementById('tk-prio').value='media';document.getElementById('tk-cat').value='trabalho';document.getElementById('tk-data').value=nowDS();document.getElementById('tk-hora').value='';document.getElementById('tk-delegado').value='';document.getElementById('tk-rep').value='';document.getElementById('tk-rep-until').value='';document.getElementById('tk-del').style.display='none';document.getElementById('tk-del').dataset.col=col||'pendente';omo('mo-tk');setTimeout(function(){document.getElementById('tk-titulo').focus();},50);}
 
 function editTask(id,e){if(e)e.stopPropagation();eTkId=id;var t=tasks.find(function(x){return x.id===id;});if(!t)return;document.getElementById('mo-tk-t').textContent='Editar tarefa';document.getElementById('tk-titulo').value=t.titulo;document.getElementById('tk-desc').value=t.descricao||'';document.getElementById('tk-prio').value=t.prioridade||'media';document.getElementById('tk-cat').value=t.cat||'trabalho';document.getElementById('tk-data').value=t.data||'';document.getElementById('tk-hora').value=t.hora||'';document.getElementById('tk-delegado').value=t.delegado||'';document.getElementById('tk-rep').value=t.rep||'';document.getElementById('tk-rep-until').value=t.repUntil||'';document.getElementById('tk-del').style.display='block';document.getElementById('tk-panel').classList.remove('on');omo('mo-tk');setTimeout(function(){document.getElementById('tk-titulo').focus();},50);}
 
