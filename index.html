@@ -663,6 +663,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--t1);font-size:13px
     <button class="sbi" onclick="toggleSaldo()"><span class="sbi-ic" id="saldo-ic">👁</span><span class="sbi-lb" id="saldo-lb">Ocultar saldo</span></button>
 
     <button class="sbi" onclick="exportJSON()"><span class="sbi-ic">💾</span><span class="sbi-lb">Backup JSON</span></button>
+    <button class="sbi" onclick="recoverLocalData()"><span class="sbi-ic">🔄</span><span class="sbi-lb">Recuperar dados locais</span></button>
 
     <button class="sbi" onclick="document.getElementById('imp-json').click()"><span class="sbi-ic">📂</span><span class="sbi-lb">Importar backup</span></button>
 
@@ -1052,6 +1053,26 @@ function save(){lsS();if(saveTimer)clearTimeout(saveTimer);setSS('syncing');save
 
 // BACKUP
 
+
+// RECUPERAÇÃO DE DADOS LOCAIS
+function recoverLocalData(){
+  var tks=JSON.parse(localStorage.getItem('lo5_tasks')||'[]');
+  var evs=JSON.parse(localStorage.getItem('lo5_events')||'[]');
+  var pgs=JSON.parse(localStorage.getItem('lo5_pag')||'[]');
+  var rcs=JSON.parse(localStorage.getItem('lo5_rec')||'[]');
+  var vds=JSON.parse(localStorage.getItem('lo5_vendas')||'[]');
+  var gls=JSON.parse(localStorage.getItem('lo5_goals')||'[]');
+  var total=tks.length+evs.length+pgs.length+rcs.length+vds.length+gls.length;
+  if(total===0){alert('Nenhum dado encontrado no armazenamento local deste navegador/arquivo.');return;}
+  if(confirm('Encontrados: '+tks.length+' tarefas, '+evs.length+' eventos, '+pgs.length+' pagamentos, '+rcs.length+' recebimentos, '+vds.length+' vendas, '+gls.length+' metas.\n\nDeseja restaurar esses dados para o sistema?')){
+    tasks=tks;events=evs;pags=pgs;recs=rcs;vendas=vds;goals=gls;
+    window._allowEmptySave=true;
+    saveNow();
+    window._allowEmptySave=false;
+    renderDash();
+    alert('✅ Dados restaurados com sucesso! Total: '+total+' registros enviados para o Firebase.');
+  }
+}
 function exportJSON(){var data={tasks:tasks,events:events,pags:pags,recs:recs,vendas:vendas,goals:goals,streakData:streakData,exportedAt:new Date().toISOString()};var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='lucas-os-'+nowDS()+'.json';a.click();}
 
 function importJSON(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(ev){try{var d=JSON.parse(ev.target.result);if(confirm('Importar backup? Dados atuais serão substituídos.')){tasks=d.tasks||[];events=d.events||[];pags=d.pags||[];recs=d.recs||[];vendas=d.vendas||[];goals=d.goals||[];streakData=d.streakData||{days:[],last:''};saveNow();renderDash();alert('Importado com sucesso!');}}catch(err){alert('Arquivo inválido.');}};r.readAsText(f);e.target.value='';}
