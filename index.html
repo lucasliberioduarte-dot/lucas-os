@@ -192,7 +192,7 @@ function save(){lsS();if(saveTimer)clearTimeout(saveTimer);setSS('syncing');save
 .agch{position:sticky;top:0;background:var(--bg1);padding:8px 4px 6px;border-bottom:1px solid var(--b1);font-size:11px;font-weight:500;z-index:10;text-align:center;color:var(--t2);text-transform:uppercase;letter-spacing:.04em}
 .agch small{display:block;font-size:20px;font-weight:400;line-height:1.2;margin-top:2px;color:var(--t1);font-family:var(--sans);text-transform:none;letter-spacing:0}
 .agch.td small{background:var(--bl);color:#fff;width:34px;height:34px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:18px}
-.agcb{position:relative;background:var(--bg1)}
+.agcb{position:relative;background:var(--bg1)}.agcol-wide{min-width:0}.agcol-wide .agch{font-size:14px;text-align:left;padding:10px 16px;text-transform:none;letter-spacing:0;display:flex;align-items:center;gap:8px}
 .tslot{height:var(--slot);border-bottom:1px solid var(--b1);position:relative}
 .tslot.half::after{content:'';position:absolute;bottom:0;left:0;right:0;border-bottom:1px dashed var(--b1)}
 .ag-tc .tslot{display:flex;align-items:flex-start;padding:2px 6px 0;justify-content:flex-end;border-bottom:1px solid var(--b1)}
@@ -359,7 +359,7 @@ function save(){lsS();if(saveTimer)clearTimeout(saveTimer);setSS('syncing');save
       <span class="aglbl" id="aglbl"></span>
       <button class="btn" onclick="agToday()" style="margin-right:8px">Hoje</button>
       <div class="vtog">
-        <button class="vt on" id="vts" onclick="setAV('s')">Semana</button>
+        <button class="vt" id="vtd" onclick="setAV('d')">Dia</button><button class="vt on" id="vts" onclick="setAV('s')">Semana</button>
         <button class="vt" id="vtm" onclick="setAV('m')">Mês</button>
       </div>
     </div>
@@ -517,7 +517,7 @@ var finTab='pagar',editFinId=null,finTipo='pag';
 var eTkId=null,dragId=null,editEvId=null,editVendaId=null,editGoalId=null;
 var fM=new Date().getMonth(),fY=new Date().getFullYear();
 var vM=new Date().getMonth(),vY=new Date().getFullYear();
-var agV='s',saveTimer=null;
+var agV='s',saveTimer=null,agD=new Date();
 var agS=(function(){var d=new Date();d.setDate(d.getDate()-((d.getDay()+6)%7));return d;})();
 var agMon=new Date();
 
@@ -655,9 +655,9 @@ function confirmEv(id){var ev=events.find(function(x){return x.id===id;});if(ev)
 function completarTask(id){var t=tasks.find(function(x){return x.id===id;});if(t&&t.status!=='concluido'){t.status='concluido';t.completedAt=nowDS();updateStreak();save();renderDash();updateBadge();}}
 
 // AGENDA
-function setAV(v){agV=v;document.getElementById('vts').classList.toggle('on',v==='s');document.getElementById('vtm').classList.toggle('on',v==='m');renderAg();}
-function agNav(d){if(agV==='s')agS.setDate(agS.getDate()+d*7);else agMon.setMonth(agMon.getMonth()+d);renderAg();}
-function agToday(){agS=new Date();agS.setDate(agS.getDate()-((agS.getDay()+6)%7));agMon=new Date();renderAg();}
+function setAV(v){agV=v;var vtd=document.getElementById('vtd');if(vtd)vtd.classList.toggle('on',v==='d');document.getElementById('vts').classList.toggle('on',v==='s');document.getElementById('vtm').classList.toggle('on',v==='m');renderAg();}
+function agNav(d){if(agV==='d'){agD=new Date(agD);agD.setDate(agD.getDate()+d);}else if(agV==='s')agS.setDate(agS.getDate()+d*7);else agMon.setMonth(agMon.getMonth()+d);renderAg();}
+function agToday(){agD=new Date();agS=new Date();agS.setDate(agS.getDate()-((agS.getDay()+6)%7));agMon=new Date();renderAg();}
 
 function renderAg(){
   var body=document.getElementById('agbody'),lbl=document.getElementById('aglbl');
