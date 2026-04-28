@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Lucas OS</title>
-<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&famihly=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <style>
@@ -94,18 +94,16 @@ body{font-family:var(--sans);background:var(--bg);color:var(--t1);font-size:13px
 .mo.on{display:flex}
 @media(min-width:600px){.mo{align-items:center}}
 .mbox{background:var(--bg1);border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:480px;border:1px solid var(--b1);border-bottom:none;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg)}
-@media(min-width:600px){.mbox{border-radius:var(--rl);border-bottom:1px solid var(--b1)}}
-.mbox h3{font-size:15px;font-weight:600;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+function save(){lsS();if(saveTimer)clearTimeout(saveTimer);setSS('syncing');saveTimer=setTimeout(saveNow,900);}.mbox h3{font-size:15px;font-weight:600;margin-bottom:16px;display:flex;align-items:center;gap:8px}
 .fl{margin-bottom:12px}.fl label{font-size:11px;color:var(--t2);margin-bottom:5px;display:block;font-weight:500}
-.fi{width:100%;padding:9px 12px;border:1.5px solid var(--b2);border-radius:var(--r);background:var(--bg);color:var(--t1);font-size:13px;font-family:var(--sans);outline:none;transition:border .12s}
-.fi:focus{border-color:var(--bl);box-shadow:0 0 0 3px var(--bring)}
+function save(){lsS();if(saveTimer)clearTimeout(saveTimer);setSS('syncing');saveTimer=setTimeout(saveNow,900);}window.addEventListener('beforeunload',function(){lsS();if(firebaseOk&&REF){REF.set({tasks:tasks,events:events,pags:pags,recs:recs,vendas:vendas,goals:goals,streakData:streakData,hideSaldo:hideSaldo,themeMode:themeMode,waPhone:waPhone,waKey:waKey,updatedAt:new Date().toISOString()});}});document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden'){lsS();if(firebaseOk&&REF)saveNow();}});.fi:focus{border-color:var(--bl);box-shadow:0 0 0 3px var(--bring)}
 .frow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .frow3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
 .ma{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;padding-top:12px;border-top:1px solid var(--b1)}
 
 /* DASHBOARD */
 .dash{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:16px}
-.day-hero{background:linear-gradient(135deg,#1a73e8 0%,#0d47a1 100%);border-radius:var(--rl);padding:20px 24px;color:#fff;display:flex;align-items:center;justify-content:space-between;overflow:hidden;position:relative}
+.day-hero{background:linear-gradient(135deg,#1a73e8 0%,#0d47a1 100%);border-radius:var(--rl);padding:20px 24px;color:#fff;display:flex;align-items:flex-start;justify-content:space-between;overflow:hidden;position:relative}
 .day-hero::before{content:'';position:absolute;right:-20px;top:-20px;width:120px;height:120px;background:rgba(255,255,255,.08);border-radius:50%}
 .day-hero-left{z-index:1}
 .day-hero-date{font-size:12px;opacity:.8;margin-bottom:2px}
