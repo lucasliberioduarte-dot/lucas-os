@@ -74,9 +74,13 @@ body{font-family:var(--font);background:var(--bg);color:var(--t1);height:100dvh;
 .sb-sync{display:flex;align-items:center;gap:6px;padding:5px 10px;font-size:11px;color:var(--t3)}
 .sync-dot{width:6px;height:6px;border-radius:99px;background:var(--gr);flex-shrink:0}
 /* TOPBAR */
-.topbar{height:52px;background:var(--bg1);border-bottom:1px solid var(--b1);display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0;z-index:5}
-.topbar-t,.topbar-title{font-size:15px;font-weight:700;color:var(--t1);letter-spacing:-.3px;flex:1}
-.topbar-clock{font-size:11.5px;color:var(--t2);font-weight:500;letter-spacing:.1px;background:var(--bg2);padding:4px 12px;border-radius:99px;border:1px solid var(--b1);font-variant-numeric:tabular-nums}
+.topbar{height:48px;background:var(--bg1);border-bottom:1px solid var(--b1);display:flex;align-items:center;padding:0 16px;gap:8px;flex-shrink:0;z-index:5}
+.topbar-t,.topbar-title{display:none}
+.top-tabs{display:flex;align-items:center;gap:2px;flex:1;height:100%}
+.top-tab{display:flex;align-items:center;gap:5px;height:100%;padding:0 14px;border:none;background:none;color:var(--t2);font-size:12.5px;font-weight:600;font-family:var(--font);cursor:pointer;border-bottom:2px solid transparent;transition:var(--transition);white-space:nowrap;letter-spacing:-.1px}
+.top-tab:hover{color:var(--t1);background:var(--bg2)}
+.top-tab.on{color:var(--ac);border-bottom-color:var(--ac);background:var(--ac-bg)}
+.topbar-clock{font-size:11px;color:var(--t2);font-weight:500;background:var(--bg2);padding:4px 10px;border-radius:99px;border:1px solid var(--b1);font-variant-numeric:tabular-nums;white-space:nowrap;flex-shrink:0}
 
 /* MAIN */
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;background:var(--bg)}
@@ -140,9 +144,9 @@ select.fi{cursor:pointer}
 .tag-outro{background:var(--bg3);color:var(--t2)}
 
 /* PRIORITY BAR */
-.prio-alta .tkcard-left{background:var(--re)}
-.prio-media .tkcard-left{background:var(--or)}
-.prio-baixa .tkcard-left{background:var(--gr)}
+.prio-alta{border-left-color:var(--re)!important}
+.prio-media{border-left-color:var(--or)!important}
+.prio-baixa{border-left-color:var(--gr)!important}
 /* HERO CARD - day-hero class used by JS */
 .day-hero,.hero-card{background:linear-gradient(135deg,#1E40AF 0%,#2563EB 50%,#1D4ED8 100%);border-radius:var(--radius-xl);padding:24px 28px;color:#fff;display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;overflow:hidden;position:relative;box-shadow:0 4px 20px rgba(37,99,235,.3),0 1px 3px rgba(37,99,235,.2)}
 .day-hero::after{content:'';position:absolute;top:-40px;right:-40px;width:200px;height:200px;border-radius:99px;background:rgba(255,255,255,.05);pointer-events:none}
@@ -331,11 +335,11 @@ select.fi{cursor:pointer}
 .dzone.over{border-color:var(--ac);background:var(--ac-bg)}
 
 /* KANBAN CARD */
-.tkcard{background:var(--bg1);border:1px solid var(--b1);border-radius:var(--radius-sm);cursor:default;transition:var(--transition);display:flex;overflow:hidden;box-shadow:var(--shadow-xs)}
-.tkcard:hover{box-shadow:var(--shadow-sm);border-color:var(--b2)}
+.tkcard{background:var(--bg1);border:1px solid var(--b1);border-left:3px solid var(--b2);border-radius:var(--radius-sm);cursor:default;transition:var(--transition);display:block;overflow:hidden;box-shadow:var(--shadow-xs);padding:10px 12px}
+.tkcard:hover{box-shadow:var(--shadow-sm);border-color:var(--b2);border-left-color:var(--b2);transform:translateY(-1px)}
 .tkcard.dr{opacity:.5;transform:rotate(1deg)}
-.tkcard-left{width:3px;flex-shrink:0;background:var(--b2)}
-.tkcard-body{padding:10px 11px;flex:1;min-width:0}
+.tkcard-left{display:none}
+.tkcard-body{display:contents}
 .tktitle{font-size:13px;font-weight:600;color:var(--t1);line-height:1.4;margin-bottom:6px;letter-spacing:-.1px}
 .tkmeta{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-bottom:7px}
 .tkdate{font-size:10.5px;font-weight:600;color:var(--or);background:var(--or-bg);padding:1px 6px;border-radius:4px}
@@ -534,7 +538,16 @@ select.fi{cursor:pointer}
 
 <div class="main">
   <div class="topbar">
-    <button class="menu-toggle" onclick="toggleSB()" aria-label="Menu"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="2" y1="4.5" x2="16" y2="4.5"/><line x1="2" y1="9" x2="16" y2="9"/><line x1="2" y1="13.5" x2="16" y2="13.5"/></svg></button><span class="topbar-title" id="topbar-t">Início</span>
+    <button class="menu-toggle" onclick="toggleSB()" aria-label="Menu"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="2" y1="4.5" x2="16" y2="4.5"/><line x1="2" y1="9" x2="16" y2="9"/><line x1="2" y1="13.5" x2="16" y2="13.5"/></svg></button>
+    <span class="topbar-title" id="topbar-t" style="display:none">Início</span>
+    <nav class="top-tabs">
+      <button class="top-tab on" id="ttab-dash" onclick="sw('dash')">🏠 Início</button>
+      <button class="top-tab" id="ttab-agenda" onclick="sw('agenda')">📅 Agenda</button>
+      <button class="top-tab" id="ttab-tarefas" onclick="sw('tarefas')">✓ Tarefas</button>
+      <button class="top-tab" id="ttab-plan" onclick="sw('plan')">🎯 Planejamento</button>
+      <button class="top-tab" id="ttab-fin" onclick="sw('fin')">💰 Financeiro</button>
+      <button class="top-tab" id="ttab-vendas" onclick="sw('vendas')">📊 Vendas</button>
+    </nav>
     <div class="topbar-clock" id="topbar-clock"></div>
   </div>
   <div class="view on" id="view-dash"><div id="dash-body"></div></div>
@@ -773,12 +786,15 @@ function omo(id){document.getElementById(id).classList.add('on');}
 
 // NAVIGATION
 function sw(v){
+  localStorage.setItem('lo5_lastview',v);
   document.querySelectorAll('.view').forEach(function(e){e.classList.remove('on');});
   document.querySelectorAll('.sbi,.mob-nav-item').forEach(function(e){e.classList.remove('on');});
   document.getElementById('view-'+v).classList.add('on');
   var sb=document.getElementById('nav-'+v);if(sb)sb.classList.add('on');
   var mb=document.getElementById('mnav-'+v);if(mb)mb.classList.add('on');
   document.getElementById('topbar-t').textContent=TITLES[v]||v;
+  document.querySelectorAll('.top-tab').forEach(function(t){t.classList.remove('on');});
+  var tt=document.getElementById('ttab-'+v);if(tt)tt.classList.add('on');
   if(v==='agenda')renderAg();
   else if(v==='fin')renderFin();
   else if(v==='tarefas')renderTasks();
@@ -809,7 +825,7 @@ function getStreak(){updateStreak();return streakData.days.length;}
 function updateBadge(){var pend=tasks.filter(function(t){return t.status==='pendente'&&t.data&&t.data<=nowDS();}).length;var b=document.getElementById('badge-tk');if(b){b.textContent=pend;b.style.display=pend?'':'none';}}
 
 // INIT
-function init(){applyTheme();if(hideSaldo){document.getElementById('saldo-lb').textContent='Mostrar saldo';document.getElementById('saldo-ic').textContent='🙈';}updateClock();tkDayFilter=nowDS();updateBadge();renderDash();}
+function init(){applyTheme();if(hideSaldo){document.getElementById('saldo-lb').textContent='Mostrar saldo';document.getElementById('saldo-ic').textContent='🙈';}updateClock();tkDayFilter=nowDS();updateBadge();var lastView=localStorage.getItem('lo5_lastview')||'dash';sw(lastView);}
 
 // DASHBOARD
 function renderDash(){
