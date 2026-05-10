@@ -55,7 +55,7 @@ html{font-size:14px;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:g
 body{font-family:var(--font);background:var(--bg);color:var(--t1);height:100dvh;overflow:hidden;display:flex;flex-direction:row;letter-spacing:-.01em}
 /* SIDEBAR */
 #app{display:flex;height:100dvh;overflow:hidden}
-.sidebar{width:var(--sidebar-w);background:var(--bg1);border-right:1px solid var(--b1);display:flex;flex-direction:column;flex-shrink:0;height:100dvh;overflow:hidden;z-index:10}
+.sidebar{display:none!important}
 .sb-header{height:56px;padding:0 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--b1);flex-shrink:0}
 .sb-logo{width:30px;height:30px;background:var(--ac);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0}
 .sb-title{font-size:14px;font-weight:700;color:var(--t1);letter-spacing:-.3px;flex:1}
@@ -81,6 +81,11 @@ body{font-family:var(--font);background:var(--bg);color:var(--t1);height:100dvh;
 .top-tab:hover{color:var(--t1);background:var(--bg2)}
 .top-tab.on{color:var(--ac);border-bottom-color:var(--ac);background:var(--ac-bg)}
 .topbar-clock{font-size:11px;color:var(--t2);font-weight:500;background:var(--bg2);padding:4px 10px;border-radius:99px;border:1px solid var(--b1);font-variant-numeric:tabular-nums;white-space:nowrap;flex-shrink:0}
+.topbar-utils{display:flex;align-items:center;gap:1px}
+.util-btn{background:none;border:none;cursor:pointer;font-size:16px;padding:5px 8px;border-radius:6px;transition:var(--transition);line-height:1;color:var(--t2)}
+.util-btn:hover{background:var(--bg2);color:var(--t1)}
+.topbar-sync{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--t3);margin:0 10px;white-space:nowrap}
+.sync-dot{width:6px;height:6px;border-radius:99px;background:var(--gr);flex-shrink:0}
 
 /* MAIN */
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;background:var(--bg)}
@@ -509,37 +514,14 @@ select.fi{cursor:pointer}
 </style>
 </head>
 <body>
-<aside class="sidebar" id="sb">
-  <div class="sb-header">
-    <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0">
-      <div class="sb-logo">L</div>
-      <span class="sb-title">Lucas OS</span>
-    </div>
-    <button class="sb-tog" onclick="toggleSB()">☰</button>
-  </div>
-  <div class="sb-body">
-    <button class="sbi on" id="nav-dash" onclick="sw('dash')"><span class="sbi-ic">🏠</span><span class="sbi-lb">Início</span></button>
-    <button class="sbi" id="nav-agenda" onclick="sw('agenda')"><span class="sbi-ic">📅</span><span class="sbi-lb">Agenda</span></button>
-    <button class="sbi" id="nav-tarefas" onclick="sw('tarefas')"><span class="sbi-ic">✓</span><span class="sbi-lb">Tarefas</span><span class="sbi-badge" id="badge-tk" style="display:none">0</span></button>
-    <button class="sbi" id="nav-plan" onclick="sw('plan')"><span class="sbi-ic">🎯</span><span class="sbi-lb">Planejamento</span></button>
-    <button class="sbi" id="nav-fin" onclick="sw('fin')"><span class="sbi-ic">💰</span><span class="sbi-lb">Financeiro</span></button>
-    <button class="sbi" id="nav-vendas" onclick="sw('vendas')"><span class="sbi-ic">📊</span><span class="sbi-lb">Vendas</span></button>
-    <div style="height:8px"></div>
-    <button class="sbi" onclick="toggleTheme()"><span class="sbi-ic" id="theme-ic">🌙</span><span class="sbi-lb" id="theme-lb">Tema escuro</span></button>
-    <button class="sbi" onclick="toggleSaldo()"><span class="sbi-ic" id="saldo-ic">👁</span><span class="sbi-lb" id="saldo-lb">Ocultar saldo</span></button>
-    <button class="sbi" onclick="exportJSON()"><span class="sbi-ic">💾</span><span class="sbi-lb">Backup JSON</span></button>
-    <button class="sbi" onclick="document.getElementById('imp-json').click()"><span class="sbi-ic">📂</span><span class="sbi-lb">Importar backup</span></button>
-    <input type="file" id="imp-json" accept=".json" style="display:none" onchange="importJSON(event)">
-  </div>
-  <div class="sb-foot">
-    <div class="sb-sync"><div class="sync-dot" id="sync-dot"></div><span id="sync-txt">sincronizado</span></div>
-  </div>
-</aside>
+
 
 <div class="main">
   <div class="topbar">
-    <button class="menu-toggle" onclick="toggleSB()" aria-label="Menu"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="2" y1="4.5" x2="16" y2="4.5"/><line x1="2" y1="9" x2="16" y2="9"/><line x1="2" y1="13.5" x2="16" y2="13.5"/></svg></button>
+    
     <span class="topbar-title" id="topbar-t" style="display:none">Início</span>
+    <span id="theme-lb" style="display:none">Tema escuro</span>
+    <span id="saldo-lb" style="display:none">Ocultar saldo</span>
     <nav class="top-tabs">
       <button class="top-tab on" id="ttab-dash" onclick="sw('dash')">🏠 Início</button>
       <button class="top-tab" id="ttab-agenda" onclick="sw('agenda')">📅 Agenda</button>
@@ -548,6 +530,14 @@ select.fi{cursor:pointer}
       <button class="top-tab" id="ttab-fin" onclick="sw('fin')">💰 Financeiro</button>
       <button class="top-tab" id="ttab-vendas" onclick="sw('vendas')">📊 Vendas</button>
     </nav>
+    <div class="topbar-utils">
+      <button class="util-btn" onclick="toggleTheme()" title="Tema"><span id="theme-ic">🌙</span></button>
+      <button class="util-btn" onclick="toggleSaldo()" title="Ocultar saldo"><span id="saldo-ic">👁</span></button>
+      <button class="util-btn" onclick="exportJSON()" title="Backup">💾</button>
+      <button class="util-btn" onclick="document.getElementById('imp-json2').click()" title="Importar">📂</button>
+      <input type="file" id="imp-json2" accept=".json" style="display:none" onchange="importJSON(event)">
+    </div>
+    <div class="topbar-sync"><div class="sync-dot" id="sync-dot"></div><span id="sync-txt">sincronizado</span></div>
     <div class="topbar-clock" id="topbar-clock"></div>
   </div>
   <div class="view on" id="view-dash"><div id="dash-body"></div></div>
