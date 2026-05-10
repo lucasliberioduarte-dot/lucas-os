@@ -1092,16 +1092,14 @@ function renderFin(){
   var in3=new Date(d);in3.setDate(d.getDate()+3);var in3s=in3.toISOString().slice(0,10);
   var in7=new Date(d);in7.setDate(d.getDate()+7);var in7s=in7.toISOString().slice(0,10);
   var R=function(v){return 'R$ '+v.toFixed(2).replace('.',',').replace(/B(?=(d{3})+(?!d))/g,'.');};
+  var mo=String(fY)+'-'+(String(fM+1).padStart(2,'0'));
   var tRec=0,tRecbd=0,tPag=0,tPago=0,vencidos=[],venc3=[],venc7=[];
   pags.forEach(function(p){
-    if(p.status=='pago')tPago+=p.val||0;else tPag+=p.val||0;
-    if(p.status!='pago'){
-      if(p.venc&&p.venc<today)vencidos.push(p);
-      else if(p.venc&&p.venc<=in3s)venc3.push(p);
-      else if(p.venc&&p.venc<=in7s)venc7.push(p);
-    }
+    var inMo=p.venc&&p.venc.slice(0,7)===mo;
+    if(inMo){if(p.status==='pago')tPago+=p.val||0;else tPag+=p.val||0;}
+    if(p.status!=='pago'){if(p.venc&&p.venc<today)vencidos.push(p);else if(p.venc&&p.venc<=in3s)venc3.push(p);else if(p.venc&&p.venc<=in7s)venc7.push(p);}
   });
-  recs.forEach(function(r){if(r.status=='pago'||r.status=='recebido')tRecbd+=r.val||0;else tRec+=r.val||0;});
+  recs.forEach(function(r){if(r.venc&&r.venc.slice(0,7)===mo){if(r.status==='pago'||r.status==='recebido')tRecbd+=r.val||0;else tRec+=r.val||0;}});
   var saldo=tRecbd-tPago;
   var alerts='';
   if(vencidos.length){var tv=vencidos.reduce(function(s,p){return s+(p.val||0);},0);alerts+='<div class="fin-alert fin-alert-red"><span class="fin-alert-icon">&#x26A0;</span><div class="fin-alert-txt"><b>'+vencidos.length+' conta(s) VENCIDA(S)</b> - acao imediata!</div><span class="fin-alert-val">'+R(tv)+'</span></div>';}
