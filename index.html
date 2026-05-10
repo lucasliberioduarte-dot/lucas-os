@@ -335,7 +335,7 @@ select.fi{cursor:pointer}
 .dzone.over{border-color:var(--ac);background:var(--ac-bg)}
 
 /* KANBAN CARD */
-.tkcard{background:var(--bg1);border:1px solid var(--b1);border-left:3px solid var(--b2);border-radius:var(--radius-sm);cursor:default;transition:var(--transition);display:block;overflow:hidden;box-shadow:var(--shadow-xs);padding:10px 12px}
+.tkcard{background:var(--bg1);border:1px solid var(--b1);border-left:3px solid var(--b2);border-radius:var(--radius-sm);cursor:default;transition:var(--transition);display:block;overflow:visible;box-shadow:var(--shadow-xs);padding:10px 12px}
 .tkcard:hover{box-shadow:var(--shadow-sm);border-color:var(--b2);border-left-color:var(--b2);transform:translateY(-1px)}
 .tkcard.dr{opacity:.5;transform:rotate(1deg)}
 .tkcard-left{display:none}
@@ -587,7 +587,7 @@ select.fi{cursor:pointer}
         <span class="water-count" id="water-count">0 / 8 copos</span>
       </div>
     </div>
-    <div style="display:flex;flex:1;overflow:hidden">
+    <div style="display:flex;flex:1;overflow:hidden;min-height:0">
       <div class="tklayout" id="tklayout"></div>
       <div class="tk-panel" id="tk-panel"></div>
     </div>
