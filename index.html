@@ -317,6 +317,56 @@ function save(){lsS();if(saveTimer)clearTimeout(saveTimer);setSS('syncing');save
   .fin-cards,.fin-cards-row{grid-template-columns:repeat(3,1fr)}
   .dash-3{grid-template-columns:1fr 1fr}
 }
+
+/* ===== POMODORO + WATER WIDGET ===== */
+.tk-widgets-bar{display:flex;align-items:center;gap:12px;padding:8px 16px;background:var(--bg1);border-bottom:1px solid var(--b1);flex-wrap:wrap}
+.pomodoro-widget,.water-widget{display:flex;align-items:center;gap:8px;background:var(--bg2);border:1px solid var(--b1);border-radius:12px;padding:6px 12px}
+.pom-icon,.water-icon{font-size:16px}
+.pom-label,.water-label{font-size:11px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.5px}
+.pom-timer{font-size:18px;font-weight:700;color:var(--t1);font-variant-numeric:tabular-nums;min-width:48px;text-align:center}
+.pom-timer.running{color:var(--gr)}
+.pom-timer.break{color:var(--bl)}
+.pom-btn{background:var(--gr);color:#fff;border:none;border-radius:8px;padding:4px 10px;font-size:13px;cursor:pointer;font-weight:700;transition:opacity .15s}
+.pom-btn:hover{opacity:.85}
+.pom-reset{background:none;border:1px solid var(--b1);border-radius:8px;padding:3px 8px;cursor:pointer;font-size:14px;color:var(--t2)}
+.pom-count{font-size:12px;color:var(--t2);display:flex;align-items:center;gap:3px}
+.water-cups{display:flex;gap:3px;align-items:center}
+.water-cup{width:14px;height:18px;border:2px solid var(--bl);border-radius:0 0 4px 4px;background:var(--bg2);cursor:pointer;transition:background .15s}
+.water-cup.full{background:var(--bl)}
+.water-add{background:var(--bl);color:#fff;border:none;border-radius:8px;padding:3px 9px;cursor:pointer;font-size:14px;font-weight:700}
+.water-count{font-size:11px;color:var(--t2);white-space:nowrap}
+.perf-widget{background:var(--bg1);border:1px solid var(--b1);border-radius:16px;padding:18px 20px;margin-bottom:14px}
+.perf-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.perf-title{font-size:14px;font-weight:700;color:var(--t1)}
+.perf-date{font-size:12px;color:var(--t2);background:var(--bg2);padding:3px 8px;border-radius:8px}
+.perf-link{font-size:12px;color:var(--bl);text-decoration:none;font-weight:600}
+.perf-cats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.perf-cat{display:flex;flex-direction:column;align-items:center;background:var(--bg2);border:1px solid var(--b1);border-radius:12px;padding:10px 14px;min-width:72px}
+.perf-cat-ic{font-size:20px;margin-bottom:4px}
+.perf-cat-n{font-size:22px;font-weight:800;color:var(--t1);line-height:1}
+.perf-cat-l{font-size:10px;color:var(--t2);margin-top:2px;text-transform:uppercase;letter-spacing:.4px}
+.perf-empty{color:var(--t2);font-size:13px;padding:10px 0;width:100%}
+.perf-week{border-top:1px solid var(--b1);padding-top:14px}
+.perf-week-title{font-size:11px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+.perf-bars{display:flex;gap:8px;align-items:flex-end}
+.perf-bar-wrap{display:flex;flex-direction:column;align-items:center;gap:2px;flex:1}
+.perf-bar-col{display:flex;align-items:flex-end;height:64px}
+.perf-bar{width:20px;background:var(--bbg);border-radius:4px 4px 0 0;transition:height .3s;min-height:3px}
+.perf-bar.perf-bar-today{background:var(--bl)}
+.perf-bar-day{font-size:10px;color:var(--t2);font-weight:500}
+.perf-bar-num{font-size:10px;color:var(--t1);font-weight:700}
+.dash-metas-widget{background:var(--bg1);border:1px solid var(--b1);border-radius:16px;padding:18px 20px;margin-bottom:14px}
+.dash-metas-list{display:flex;flex-direction:column;gap:10px}
+.dash-meta-item{display:flex;flex-direction:column;gap:4px}
+.dash-meta-info{display:flex;justify-content:space-between;align-items:center}
+.dash-meta-title{font-size:13px;font-weight:600;color:var(--t1)}
+.dash-meta-prog{font-size:12px;font-weight:700;color:var(--bl)}
+.dash-meta-bar{height:6px;background:var(--bg2);border-radius:99px;overflow:hidden;border:1px solid var(--b1)}
+.dash-meta-fill{height:100%;background:linear-gradient(90deg,var(--bl),var(--gr));border-radius:99px;transition:width .4s}
+.tkcard{border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.06);transition:box-shadow .15s,transform .1s}
+.tkcard:hover{box-shadow:0 3px 10px rgba(0,0,0,.1);transform:translateY(-1px)}
+.hero-card{background:linear-gradient(135deg,#1565c0 0%,#1a73e8 50%,#0d47a1 100%);box-shadow:0 4px 20px rgba(26,115,232,.35)}
+
 </style>
 </head>
 <body>
@@ -371,6 +421,23 @@ function save(){lsS();if(saveTimer)clearTimeout(saveTimer);setSS('syncing');save
       <input class="tk-qi" id="tk-qi" placeholder="＋ Tarefa rápida — digite e pressione Enter..." onkeydown="if(event.key==='Enter')quickAddTask()">
       <button class="btn btnp" onclick="quickAddTask()">Adicionar</button>
       <button class="btn" onclick="newTask('pendente')">Avançado</button>
+    </div>
+    <div class="tk-widgets-bar">
+      <div class="pomodoro-widget" id="pomodoro-widget">
+        <span class="pom-icon">🍅</span>
+        <span class="pom-label" id="pom-label">Pomodoro</span>
+        <span class="pom-timer" id="pom-timer">25:00</span>
+        <button class="pom-btn" id="pom-btn" onclick="pomodoroToggle()">►</button>
+        <button class="pom-reset" onclick="pomodoroReset()" title="Resetar">↺</button>
+        <span class="pom-count">🍅 <span id="pom-done">0</span></span>
+      </div>
+      <div class="water-widget" id="water-widget">
+        <span class="water-icon">💧</span>
+        <span class="water-label">Água</span>
+        <div class="water-cups" id="water-cups"></div>
+        <button class="water-add" onclick="addWater()" title="Beber água">+</button>
+        <span class="water-count" id="water-count">0 / 8 copos</span>
+      </div>
     </div>
     <div style="display:flex;flex:1;overflow:hidden">
       <div class="tklayout" id="tklayout"></div>
@@ -646,7 +713,29 @@ function renderDash(){
   html+='<div class="card"><div class="sh"><span class="st">✓ Próximas tarefas</span><button class="btn" style="font-size:11px;padding:4px 10px" onclick="sw(\'tarefas\')">Ver todas</button></div>'+(proxTk.length===0?'<div class="empty" style="padding:24px">Nenhuma tarefa pendente 🎉</div>':proxTk.map(function(t){var atrasada=t.data&&t.data<tod;return'<div class="ptk-item" onclick="editTask(\''+t.id+'\',null)"><div class="ptk-check" onclick="event.stopPropagation();completarTask(\''+t.id+'\')"></div><span class="ptk-title'+(atrasada?' atrasada':'')+'">'+t.titulo+'</span><div class="ptk-meta">'+(t.data?'<span class="ptk-date'+(atrasada?' atrasada':'')+'">'+(atrasada?'⚠ ':'')+fd(t.data)+'</span>':'<span style="font-size:10px;color:var(--t3)">sem data</span>')+'</div></div>';}).join(''))+'</div>';
   html+='</div>';
   html+='<div class="prog-wrap"><div class="prog-row"><span style="font-size:12px;font-weight:600">Progresso geral</span><span style="font-family:var(--mono);font-size:14px;color:var(--bl);font-weight:600">'+pct+'%</span></div><div class="prog-bg"><div class="prog-fill" style="width:'+pct+'%"></div></div><div class="prog-stats"><div class="prog-stat"><div class="prog-stat-n" style="color:var(--am)">'+pend+'</div><div class="prog-stat-l">A fazer</div></div><div class="prog-stat"><div class="prog-stat-n" style="color:var(--bl)">'+and+'</div><div class="prog-stat-l">Andamento</div></div><div class="prog-stat"><div class="prog-stat-n" style="color:var(--gr)">'+conc+'</div><div class="prog-stat-l">Concluído</div></div><div class="prog-stat"><div class="prog-stat-n" style="color:var(--t3)">'+canc+'</div><div class="prog-stat-l">Cancelado</div></div></div></div>';
-  html+='<div class="wa-widget"><div class="wa-title">📱 WhatsApp'+(waPhone?' <span style="opacity:.7;font-size:10px;font-weight:400">● conectado</span>':'')+'</div><div class="wa-sub">'+(waPhone?'Envie mensagens ou lembretes direto para o seu WhatsApp':'Conecte seu WhatsApp para receber resumos e lembretes')+'</div><div class="wa-row"><input class="wa-input" id="wa-quick" placeholder="Mensagem ou lembrete..."><button class="wa-btn" onclick="waSendQuick()">Enviar 📤</button></div>'+(waPhone?'<div class="wa-cfg" onclick="openWAConfig()">⚙ Reconfigurar</div>':'<div class="wa-cfg" onclick="openWAConfig()">⚙ Configurar agora — leva 1 minuto</div>')+'<div class="wa-status" id="wa-status"></div></div>';
+  
+  var todTasks=tasks.filter(function(t){return t.completedAt===tod;});
+  var trabDone=todTasks.filter(function(t){return t.cat==='trabalho';}).length;
+  var pessDone=todTasks.filter(function(t){return t.cat==='pessoal';}).length;
+  var casaDone=todTasks.filter(function(t){return t.cat==='casa';}).length;
+  var facDone=todTasks.filter(function(t){return t.cat==='faculdade';}).length;
+  var outrDone=todTasks.filter(function(t){return t.cat==='outro';}).length;
+  var totalDone=todTasks.length;
+  var last7=[];for(var d=6;d>=0;d--){var dd=new Date();dd.setDate(dd.getDate()-d);var ds=dd.getFullYear()+'-'+String(dd.getMonth()+1).padStart(2,'0')+'-'+String(dd.getDate()).padStart(2,'0');var cnt=tasks.filter(function(t){return t.completedAt===ds;}).length;last7.push({ds:ds,cnt:cnt,label:['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'][dd.getDay()]});}
+  var maxBar=Math.max.apply(null,last7.map(function(x){return x.cnt;}));if(maxBar<1)maxBar=1;
+  html+='<div class="perf-widget"><div class="perf-header"><span class="perf-title">&#128202; Performance de Hoje</span><span class="perf-date">'+tod+'</span></div><div class="perf-cats">';
+  if(trabDone>0)html+='<div class="perf-cat"><span class="perf-cat-ic">&#128188;</span><span class="perf-cat-n">'+trabDone+'</span><span class="perf-cat-l">Trabalho</span></div>';
+  if(pessDone>0)html+='<div class="perf-cat"><span class="perf-cat-ic">&#128100;</span><span class="perf-cat-n">'+pessDone+'</span><span class="perf-cat-l">Pessoal</span></div>';
+  if(casaDone>0)html+='<div class="perf-cat"><span class="perf-cat-ic">&#127968;</span><span class="perf-cat-n">'+casaDone+'</span><span class="perf-cat-l">Casa</span></div>';
+  if(facDone>0)html+='<div class="perf-cat"><span class="perf-cat-ic">&#128218;</span><span class="perf-cat-n">'+facDone+'</span><span class="perf-cat-l">Faculdade</span></div>';
+  if(outrDone>0)html+='<div class="perf-cat"><span class="perf-cat-ic">&#11088;</span><span class="perf-cat-n">'+outrDone+'</span><span class="perf-cat-l">Outro</span></div>';
+  if(totalDone===0)html+='<div class="perf-empty">Nenhuma tarefa conclu&#237;da hoje &#8212; vamos l&#225;! &#128170;</div>';
+  html+='</div><div class="perf-week"><div class="perf-week-title">&#218;ltimos 7 dias</div><div class="perf-bars">';
+  last7.forEach(function(day){var h=Math.round((day.cnt/maxBar)*60);html+='<div class="perf-bar-wrap"><div class="perf-bar-col"><div class="perf-bar'+(day.ds===tod?' perf-bar-today':'')+'" style="height:'+(h<3?3:h)+'px" title="'+day.cnt+' tarefas conclu&#237;das"></div></div><div class="perf-bar-day">'+day.label+'</div><div class="perf-bar-num">'+day.cnt+'</div></div>';});
+  html+='</div></div></div>';
+  var goalsAll=goals||[];var goalsPend=goalsAll.filter(function(g){return !g.done;}).slice(0,4);
+  if(goalsPend.length>0){html+='<div class="dash-metas-widget"><div class="perf-header"><span class="perf-title">&#127919; Metas em Andamento</span><a href="#" onclick="sw(\'plan\');return false;" class="perf-link">Ver todas &#8594;</a></div><div class="dash-metas-list">';goalsPend.forEach(function(g){var p=parseInt(g.prog||0);html+='<div class="dash-meta-item"><div class="dash-meta-info"><span class="dash-meta-title">'+g.titulo+'</span><span class="dash-meta-prog">'+p+'%</span></div><div class="dash-meta-bar"><div class="dash-meta-fill" style="width:'+p+'%"></div></div></div>';});html+='</div></div>';}
+    html+='<div class="wa-widget"><div class="wa-title">📱 WhatsApp'+(waPhone?' <span style="opacity:.7;font-size:10px;font-weight:400">● conectado</span>':'')+'</div><div class="wa-sub">'+(waPhone?'Envie mensagens ou lembretes direto para o seu WhatsApp':'Conecte seu WhatsApp para receber resumos e lembretes')+'</div><div class="wa-row"><input class="wa-input" id="wa-quick" placeholder="Mensagem ou lembrete..."><button class="wa-btn" onclick="waSendQuick()">Enviar 📤</button></div>'+(waPhone?'<div class="wa-cfg" onclick="openWAConfig()">⚙ Reconfigurar</div>':'<div class="wa-cfg" onclick="openWAConfig()">⚙ Configurar agora — leva 1 minuto</div>')+'<div class="wa-status" id="wa-status"></div></div>';
   html+='<div style="background:var(--bg1);border:1px solid var(--b1);border-radius:var(--rl);padding:16px;box-shadow:var(--shadow)"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px"><span style="font-size:12px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.05em">💰 Financeiro — '+MF[new Date().getMonth()]+'</span><button class="btn" onclick="sw(\'fin\')" style="font-size:11px;padding:4px 10px">Ver completo →</button></div><div class="dash-2"><div style="display:flex;flex-direction:column;gap:8px"><div class="bc-row"><span class="bc-lbl">A receber</span><div class="bc-bg"><div class="bc-fill" style="width:100%;background:var(--bl)"></div></div><span class="bc-val" style="color:var(--bl)">'+R(tReceber)+'</span></div><div class="bc-row"><span class="bc-lbl">Recebido</span><div class="bc-bg"><div class="bc-fill" style="width:'+Math.round(tRecebido/mxB*100)+'%;background:var(--gr)"></div></div><span class="bc-val" style="color:var(--gr)">'+R(tRecebido)+'</span></div><div class="bc-row"><span class="bc-lbl">A pagar</span><div class="bc-bg"><div class="bc-fill" style="width:'+Math.round(tPagar/mxB*100)+'%;background:var(--am)"></div></div><span class="bc-val" style="color:var(--am)">'+R(tPagar)+'</span></div><div class="bc-row"><span class="bc-lbl">Pago</span><div class="bc-bg"><div class="bc-fill" style="width:'+Math.round(tPago/mxB*100)+'%;background:var(--re)"></div></div><span class="bc-val" style="color:var(--re)">'+R(tPago)+'</span></div></div><div style="display:flex;align-items:center;justify-content:center"><div class="mmc" style="flex:1;text-align:center"><div class="mmc-lbl">Saldo líquido</div><div class="mmc-val '+(saldo>=0?'g':'r')+'">'+R(saldo)+'</div><div class="mmc-sub">'+(saldo>=0?'✓ positivo':'⚠ negativo')+'</div></div></div></div></div>';
   document.getElementById('dash-body').innerHTML=html;
 }
@@ -738,7 +827,7 @@ function renderTasks(){
     var ct=tasks.filter(function(t){return t.status===col.id;});
     if(tkFilterRepeat)ct=ct.filter(function(t){return t.rep;});
     else if(tkCatFilter)ct=ct.filter(function(t){return(t.cat||'outro')===tkCatFilter;});
-    var tod=nowDS();if(tkDayFilter&&tkDayFilter!==tod){ct=ct.filter(function(t){return t.data===tkDayFilter||t.completedAt===tkDayFilter;});}else{if(col.id==='concluido'||col.id==='cancelado'){ct=ct.filter(function(t){return t.completedAt===tod;});}else{ct=ct.filter(function(t){return !t.data||t.data<=tod;});}}
+    var tod=nowDS();if(tkDayFilter&&tkDayFilter!==tod){ct=ct.filter(function(t){return t.data===tkDayFilter||t.completedAt===tkDayFilter;});}else{if(col.id==='concluido'||col.id==='cancelado'){ct=ct.filter(function(t){return t.completedAt===tod;}).sort((a,b)=>(b.completedAt||'').localeCompare(a.completedAt||''));}else{ct=ct.filter(function(t){return !t.data||t.data<=tod;});}}
     var div=document.createElement('div');div.className='tkcol';
     var head=document.createElement('div');head.className='tkch';head.innerHTML='<span class="tkct">'+col.ic+' '+col.lbl+'</span><span class="tkcn">'+ct.length+'</span>';div.appendChild(head);
     var list=document.createElement('div');list.className='tklist';list.id='col-'+col.id;
@@ -874,6 +963,61 @@ function delVenda(id){vendas=vendas.filter(function(x){return x.id!==id;});save(
 
 // BOOT
 loadFS();
+
+function pomodoroToggle(){
+  var btn=document.getElementById('pom-btn');
+  var timerEl=document.getElementById('pom-timer');
+  var labelEl=document.getElementById('pom-label');
+  if(!window._pomRunning){
+    if(!window._pomLeft)window._pomLeft=25*60;
+    window._pomRunning=true;btn.textContent='||';timerEl.classList.add('running');
+    window._pomInt=setInterval(function(){
+      window._pomLeft--;
+      if(window._pomLeft<=0){
+        clearInterval(window._pomInt);window._pomRunning=false;
+        var done=(window._pomDone||0)+1;window._pomDone=done;
+        var doneEl=document.getElementById('pom-done');if(doneEl)doneEl.textContent=done;
+        alert('Pomodoro concluido! Hora de descansar 5 minutos.');
+        window._pomLeft=5*60;window._pomIsBreak=true;
+        timerEl.classList.remove('running');timerEl.classList.add('break');
+        if(labelEl)labelEl.textContent='Pausa';btn.textContent='>';
+        var m=Math.floor(window._pomLeft/60);var s=window._pomLeft%60;
+        timerEl.textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s;return;
+      }
+      var m=Math.floor(window._pomLeft/60);var s=window._pomLeft%60;
+      timerEl.textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s;
+    },1000);
+  } else {clearInterval(window._pomInt);window._pomRunning=false;btn.textContent='>';}
+}
+function pomodoroReset(){
+  clearInterval(window._pomInt);window._pomRunning=false;window._pomLeft=25*60;window._pomIsBreak=false;
+  var timerEl=document.getElementById('pom-timer');var labelEl=document.getElementById('pom-label');var btn=document.getElementById('pom-btn');
+  if(timerEl){timerEl.textContent='25:00';timerEl.classList.remove('running','break');}
+  if(labelEl)labelEl.textContent='Pomodoro';
+  if(btn)btn.textContent='>';
+}
+function initWater(){
+  var today=nowDS();
+  if(!window._waterData||window._waterData.date!==today)window._waterData={date:today,count:0};
+  renderWater();
+}
+function addWater(){
+  var today=nowDS();
+  if(!window._waterData||window._waterData.date!==today)window._waterData={date:today,count:0};
+  if(window._waterData.count<8){window._waterData.count++;renderWater();}
+}
+function removeWater(i){
+  if(window._waterData)window._waterData.count=i;
+  renderWater();
+}
+function renderWater(){
+  var cups=document.getElementById('water-cups');var countEl=document.getElementById('water-count');
+  if(!cups)return;
+  var c=window._waterData?window._waterData.count:0;
+  var h='';for(var i=0;i<8;i++){h+='<div class="water-cup'+(i<c?' full':'')+'" onclick="removeWater('+i+')" title="'+(i+1)+' copo'+(i>0?'s':'')+'"></div>';}
+  cups.innerHTML=h;if(countEl)countEl.textContent=c+' / 8 copos';
+}
+
 </script>
 </body>
 </html>
