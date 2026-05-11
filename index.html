@@ -621,7 +621,7 @@ select.fi{cursor:pointer}
         <span class="pom-label" id="pom-label">Pomodoro</span>
         <span class="pom-timer" id="pom-timer">25:00</span>
         <button class="pom-btn" id="pom-btn" onclick="pomodoroToggle()">►</button>
-        <button class="pom-reset" onclick="pomodoroReset()" title="Resetar">↺</button>
+        <button class="pom-reset" onclick="pomodoroReset()" title="Resetar">↺</button><button class="pom-reset" onclick="pomodoroOpenConfig()" title="Configurar" style="font-size:11px">⚙</button>
         <span class="pom-count">🍅 <span id="pom-done">0</span></span>
       </div>
       <div class="water-widget" id="water-widget">
@@ -870,7 +870,7 @@ function getStreak(){updateStreak();return streakData.days.length;}
 function updateBadge(){var pend=tasks.filter(function(t){return t.status==='pendente'&&t.data&&t.data<=nowDS();}).length;var b=document.getElementById('badge-tk');if(b){b.textContent=pend;b.style.display=pend?'':'none';}}
 
 // INIT
-function init(){applyTheme();if(hideSaldo){document.getElementById('saldo-lb').textContent='Mostrar saldo';document.getElementById('saldo-ic').textContent='\uD83D\uDE48';}updateClock();tkDayFilter=nowDS();updateBadge();var lastView=localStorage.getItem('lo5_lastview')||'dash';sw(lastView);}
+function init(){applyTheme();if(hideSaldo){document.getElementById('saldo-lb').textContent='Mostrar saldo';document.getElementById('saldo-ic').textContent='\uD83D\uDE48';}updateClock();tkDayFilter=nowDS();updateBadge();initWater();pomodoroLoadCount();var lastView=localStorage.getItem('lo5_lastview')||'dash';sw(lastView);}
 
 // DASHBOARD
 function renderDash(){
@@ -936,7 +936,7 @@ function renderDash(){
   document.getElementById('dash-body').innerHTML=html;
 }
 
-function confirmEv(id){var ev=events.find(function(x){return x.id===id;});if(ev){ev.confirmed=!ev.confirmed;save();renderDash();}}
+function confirmEv(id){var ev=events.find(function(x){return x.id===id;});if(ev){ev.confirmed=!ev.confirmed;lsS();saveNow();renderDash();}}
 function completarTask(id){var t=tasks.find(function(x){return x.id===id;});if(t&&t.status!=='concluido'){t.status='concluido';t.completedAt=nowDS();updateStreak();save();renderDash();updateBadge();}}
 
 // AGENDA
@@ -1023,7 +1023,7 @@ function renderTasks(){
     var ct=tasks.filter(function(t){return t.status===col.id;});
     if(tkFilterRepeat)ct=ct.filter(function(t){return t.rep;});
     else if(tkCatFilter)ct=ct.filter(function(t){return(t.cat||'outro')===tkCatFilter;});
-    var tod=nowDS();if(tkDayFilter&&tkDayFilter!==tod){ct=ct.filter(function(t){return t.data===tkDayFilter||t.completedAt===tkDayFilter;});}else{if(col.id==='concluido'||col.id==='cancelado'){ct=ct.filter(function(t){return t.completedAt===tod;}).sort((a,b)=>(b.completedAt||'').localeCompare(a.completedAt||''));}else{ct=ct.filter(function(t){return !t.data||t.data<=tod;});}}
+    var tod=nowDS();if(tkDayFilter&&tkDayFilter!==tod){ct=ct.filter(function(t){return t.data===tkDayFilter||t.completedAt===tkDayFilter;});}else{if(col.id==='concluido'||col.id==='cancelado'){ct=ct.filter(function(t){return t.completedAt===tod;}).sort(function(a,b){var d=(b.completedAt||'').localeCompare(a.completedAt||'');return d!==0?d:(Number(b.id||0)-Number(a.id||0));});}else{ct=ct.filter(function(t){return !t.data||t.data<=tod;});}}
     var div=document.createElement('div');div.className='tkcol';
     var head=document.createElement('div');head.className='tkch';head.innerHTML='<span class="tkct">'+col.ic+' '+col.lbl+'</span><span class="tkcn">'+ct.length+'</span>';div.appendChild(head);
     var list=document.createElement('div');list.className='tklist';list.id='col-'+col.id;
@@ -1382,58 +1382,96 @@ function delVenda(id){vendas=vendas.filter(function(x){return x.id!==id;});save(
 // BOOT
 loadFS();
 
+function pomodoroGetConfig(){
+var cfg=null;try{cfg=JSON.parse(localStorage.getItem('lo5_pom_cfg'));}catch(e){}
+return cfg||{work:25,brk:5};
+}
+function pomodoroOpenConfig(){
+var cfg=pomodoroGetConfig();
+var w=prompt('Duração do Pomodoro em minutos (atual: '+cfg.work+'):',cfg.work);
+if(w===null)return;
+var b=prompt('Duração da pausa em minutos (atual: '+cfg.brk+'):',cfg.brk);
+if(b===null)return;
+w=parseInt(w)||25;b=parseInt(b)||5;
+localStorage.setItem('lo5_pom_cfg',JSON.stringify({work:w,brk:b}));
+pomodoroReset();
+alert('Configurado! Pomodoro: '+w+'min | Pausa: '+b+'min');
+}
+function pomodoroLoadCount(){
+var tod=nowDS();
+var saved=null;try{saved=JSON.parse(localStorage.getItem('lo5_pom_count'));}catch(e){}
+if(saved&&saved.date===tod){window._pomDone=saved.count||0;}else{window._pomDone=0;}
+var doneEl=document.getElementById('pom-done');if(doneEl)doneEl.textContent=window._pomDone||0;
+}
+function pomodoroSaveCount(){
+var tod=nowDS();
+localStorage.setItem('lo5_pom_count',JSON.stringify({date:tod,count:window._pomDone||0}));
+}
 function pomodoroToggle(){
-  var btn=document.getElementById('pom-btn');
-  var timerEl=document.getElementById('pom-timer');
-  var labelEl=document.getElementById('pom-label');
-  if(!window._pomRunning){
-    if(!window._pomLeft)window._pomLeft=25*60;
-    window._pomRunning=true;btn.textContent='||';timerEl.classList.add('running');
-    window._pomInt=setInterval(function(){
-      window._pomLeft--;
-      if(window._pomLeft<=0){
-        clearInterval(window._pomInt);window._pomRunning=false;
-        var done=(window._pomDone||0)+1;window._pomDone=done;
-        var doneEl=document.getElementById('pom-done');if(doneEl)doneEl.textContent=done;
-        alert('Pomodoro concluido! Hora de descansar 5 minutos.');
-        window._pomLeft=5*60;window._pomIsBreak=true;
-        timerEl.classList.remove('running');timerEl.classList.add('break');
-        if(labelEl)labelEl.textContent='Pausa';btn.textContent='>';
-        var m=Math.floor(window._pomLeft/60);var s=window._pomLeft%60;
-        timerEl.textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s;return;
-      }
-      var m=Math.floor(window._pomLeft/60);var s=window._pomLeft%60;
-      timerEl.textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s;
-    },1000);
-  } else {clearInterval(window._pomInt);window._pomRunning=false;btn.textContent='>';}
+var btn=document.getElementById('pom-btn');
+var timerEl=document.getElementById('pom-timer');
+var labelEl=document.getElementById('pom-label');
+var cfg=pomodoroGetConfig();
+if(!window._pomRunning){
+if(!window._pomLeft)window._pomLeft=(window._pomIsBreak?cfg.brk:cfg.work)*60;
+window._pomRunning=true;btn.textContent='||';timerEl.classList.add('running');
+window._pomInt=setInterval(function(){
+window._pomLeft--;
+if(window._pomLeft<=0){
+clearInterval(window._pomInt);window._pomRunning=false;
+if(!window._pomIsBreak){
+var done=(window._pomDone||0)+1;window._pomDone=done;
+pomodoroSaveCount();
+var doneEl=document.getElementById('pom-done');if(doneEl)doneEl.textContent=done;
+alert('Pomodoro '+done+' concluído! Hora de descansar '+cfg.brk+' minutos. 🍅');
+window._pomLeft=cfg.brk*60;window._pomIsBreak=true;
+timerEl.classList.remove('running');timerEl.classList.add('break');
+if(labelEl)labelEl.textContent='Pausa';btn.textContent='>';
+}else{
+alert('Pausa encerrada! Pronto para mais um Pomodoro? 💪');
+window._pomLeft=cfg.work*60;window._pomIsBreak=false;
+timerEl.classList.remove('break');
+if(labelEl)labelEl.textContent='Pomodoro';btn.textContent='>';
+}
+var m=Math.floor(window._pomLeft/60);var s=window._pomLeft%60;
+timerEl.textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s;return;
+}
+var m=Math.floor(window._pomLeft/60);var s=window._pomLeft%60;
+timerEl.textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s;
+},1000);
+} else {clearInterval(window._pomInt);window._pomRunning=false;btn.textContent='>';}
 }
 function pomodoroReset(){
-  clearInterval(window._pomInt);window._pomRunning=false;window._pomLeft=25*60;window._pomIsBreak=false;
-  var timerEl=document.getElementById('pom-timer');var labelEl=document.getElementById('pom-label');var btn=document.getElementById('pom-btn');
-  if(timerEl){timerEl.textContent='25:00';timerEl.classList.remove('running','break');}
-  if(labelEl)labelEl.textContent='Pomodoro';
-  if(btn)btn.textContent='>';
+clearInterval(window._pomInt);window._pomRunning=false;window._pomIsBreak=false;
+var cfg=pomodoroGetConfig();
+window._pomLeft=cfg.work*60;
+var timerEl=document.getElementById('pom-timer');var labelEl=document.getElementById('pom-label');var btn=document.getElementById('pom-btn');
+var m=cfg.work;
+if(timerEl){timerEl.textContent=(m<10?'0':'')+m+':00';timerEl.classList.remove('running','break');}
+if(labelEl)labelEl.textContent='Pomodoro';
+if(btn)btn.textContent='>';
 }
 function initWater(){
-  var today=nowDS();
-  if(!window._waterData||window._waterData.date!==today)window._waterData={date:today,count:0};
-  renderWater();
+var today=nowDS();
+var saved=null;try{saved=JSON.parse(localStorage.getItem('lo5_water'));}catch(e){}
+if(!saved||saved.date!==today){window._waterData={date:today,count:0};}else{window._waterData=saved;}
+renderWater();
 }
 function addWater(){
-  var today=nowDS();
-  if(!window._waterData||window._waterData.date!==today)window._waterData={date:today,count:0};
-  if(window._waterData.count<8){window._waterData.count++;renderWater();}
+var today=nowDS();
+if(!window._waterData||window._waterData.date!==today)window._waterData={date:today,count:0};
+if(window._waterData.count<8){window._waterData.count++;localStorage.setItem('lo5_water',JSON.stringify(window._waterData));renderWater();}
 }
 function removeWater(i){
-  if(window._waterData)window._waterData.count=i;
-  renderWater();
+if(window._waterData){window._waterData.count=i;localStorage.setItem('lo5_water',JSON.stringify(window._waterData));}
+renderWater();
 }
 function renderWater(){
-  var cups=document.getElementById('water-cups');var countEl=document.getElementById('water-count');
-  if(!cups)return;
-  var c=window._waterData?window._waterData.count:0;
-  var h='';for(var i=0;i<8;i++){h+='<div class="water-cup'+(i<c?' full':'')+'" onclick="removeWater('+i+')" title="'+(i+1)+' copo'+(i>0?'s':'')+'"></div>';}
-  cups.innerHTML=h;if(countEl)countEl.textContent=c+' / 8 copos';
+var cups=document.getElementById('water-cups');var countEl=document.getElementById('water-count');
+if(!cups)return;
+var c=window._waterData?window._waterData.count:0;
+var h='';for(var i=0;i<8;i++){h+='<div class="water-cup'+(i<c?' full':'')+'" onclick="removeWater('+i+')" title="'+(i+1)+' copo'+(i>0?'s':'')+'"></div>';}
+cups.innerHTML=h;if(countEl)countEl.textContent=c+' / 8 copos';
 }
 
 </script>
